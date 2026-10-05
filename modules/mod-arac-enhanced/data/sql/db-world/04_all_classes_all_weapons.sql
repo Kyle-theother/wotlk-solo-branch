@@ -2,8 +2,8 @@
 -- classMask 1535 is all playable classes (no class 10).
 -- raceMask 0 is all races.
 -- New characters learn the skills from playercreateinfo_skills.
--- Existing characters are covered by the character_skills statement below;
--- run that one against acore_characters, not acore_world.
+-- Existing characters need the acore_characters statement, with max 400
+-- so the skill can reach the level 80 cap. max 1 would make every swing miss.
 
 UPDATE `item_template`
 SET `AllowableClass` = -1
@@ -29,7 +29,7 @@ INSERT IGNORE INTO `playercreateinfo_skills` (`raceMask`, `classMask`, `skill`, 
 
 -- Run this against acore_characters after the world update has applied:
 -- INSERT IGNORE INTO `character_skills` (`guid`, `skill`, `value`, `max`)
--- SELECT c.`guid`, s.`skill`, 1, 1
+-- SELECT c.`guid`, s.`skill`, 1, 400
 -- FROM `characters` c
 -- JOIN (
 --     SELECT 43 AS skill UNION ALL SELECT 44 UNION ALL SELECT 45 UNION ALL SELECT 46
