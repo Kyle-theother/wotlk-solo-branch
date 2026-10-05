@@ -1,8 +1,11 @@
 # Local overrides. Do not edit docker-compose.yml.
 # PlayerStart.CustomSpells lets off-race classes receive their starter spells.
 # MinLevelForHeroicCharacter 0 removes the level 55 account requirement for Death Knights.
+# ModWarEffort.Enable turns on the Gates of Ahn'Qiraj war effort. The module
+# itself lives in modules/mod-war-effort and defaults to disabled.
 services:
   ac-worldserver:
     environment:
       AC_PLAYER_START_CUSTOM_SPELLS: "1"
       AC_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER: "0"
+      AC_MOD_WAR_EFFORT_ENABLE: "1"
