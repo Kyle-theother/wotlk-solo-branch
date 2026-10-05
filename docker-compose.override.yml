@@ -1,0 +1,6 @@
+# Local overrides. Do not edit docker-compose.yml.
+# PlayerStart.CustomSpells lets off-race classes receive their starter spells.
+services:
+  ac-worldserver:
+    environment:
+      AC_PLAYER_START_CUSTOM_SPELLS: "1"
