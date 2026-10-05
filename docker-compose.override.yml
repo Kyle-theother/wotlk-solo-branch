@@ -1,6 +1,8 @@
 # Local overrides. Do not edit docker-compose.yml.
 # PlayerStart.CustomSpells lets off-race classes receive their starter spells.
+# MinLevelForHeroicCharacter 0 removes the level 55 account requirement for Death Knights.
 services:
   ac-worldserver:
     environment:
       AC_PLAYER_START_CUSTOM_SPELLS: "1"
+      AC_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER: "0"
