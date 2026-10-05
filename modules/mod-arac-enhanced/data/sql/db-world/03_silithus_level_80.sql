@@ -1,16 +1,23 @@
--- Silithus (zone 1377) as a level 80 zone.
--- Only creature templates that spawn in Silithus and nowhere else are changed,
--- so shared critters and world bosses used in other zones stay put.
--- Quest XP follows QuestLevel. MinLevel 77 lets a fresh 80 pick the chain up
--- on the way in; the quests themselves are level 80.
+-- Silithus as a level 80 zone.
+-- zoneId is 0 during db-import (the worldserver fills it later), so this matches
+-- the Kalimdor bounding box for Silithus as well as a populated zoneId.
+-- Only templates that do not also spawn outside that box are changed.
 
 UPDATE `creature_template` ct
 INNER JOIN (
     SELECT `id1` AS `entry`
     FROM `creature`
     GROUP BY `id1`
-    HAVING SUM(`zoneId` = 1377) > 0
-       AND SUM(`zoneId` <> 1377) = 0
+    HAVING SUM(
+            `zoneId` = 1377
+            OR (`map` = 1 AND `position_x` BETWEEN -8400 AND -6000 AND `position_y` BETWEEN -100 AND 2700)
+           ) > 0
+       AND SUM(
+            NOT (
+                `zoneId` = 1377
+                OR (`map` = 1 AND `position_x` BETWEEN -8400 AND -6000 AND `position_y` BETWEEN -100 AND 2700)
+            )
+           ) = 0
 ) silithus_only ON silithus_only.`entry` = ct.`entry`
 SET
     ct.`minlevel` = 80,
