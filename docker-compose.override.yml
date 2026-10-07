@@ -10,6 +10,7 @@
 # AccountBound shares achievements, mounts, pets, titles, and reputation across the account.
 # StarterGear.Enable lets a character use .startergear once.
 # DungeonQuests.Enable adds the dungeon quest guide and the accept-all option.
+# AllowTwoSide lets opposite factions group, trade, chat, mail, and guild.
 services:
   ac-worldserver:
     environment:
@@ -31,3 +32,12 @@ services:
       AC_STARTER_GEAR_ENABLE: "1"
       AC_DUNGEON_QUESTS_ENABLE: "1"
       AC_DUNGEON_QUESTS_ENABLE_ACCEPT_ALL: "1"
+      AC_ALLOW_TWO_SIDE_INTERACTION_GROUP: "1"
+      AC_ALLOW_TWO_SIDE_INTERACTION_GUILD: "1"
+      AC_ALLOW_TWO_SIDE_INTERACTION_CHAT: "1"
+      AC_ALLOW_TWO_SIDE_INTERACTION_CHANNEL: "1"
+      AC_ALLOW_TWO_SIDE_INTERACTION_MAIL: "1"
+      AC_ALLOW_TWO_SIDE_INTERACTION_AUCTION: "1"
+      AC_ALLOW_TWO_SIDE_TRADE: "1"
+      AC_ALLOW_TWO_SIDE_WHO_LIST: "1"
+      AC_ALLOW_TWO_SIDE_ADD_FRIEND: "1"
