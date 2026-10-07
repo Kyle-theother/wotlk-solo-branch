@@ -1,6 +1,6 @@
--- Jarvis beside each race's first spawn. Offsets are a few yards from playercreateinfo.
+-- Jarvis beside each race's first spawn. This database uses creature.id, not id1.
 
-INSERT INTO `creature` (`id1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `MovementType`) VALUES
+INSERT INTO `creature` (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `MovementType`) VALUES
 (900010, 0, -8945.0, -132.0, 83.5, 0.0, 300, 0, 0),
 (900010, 0, -6235.0, 331.0, 383.0, 0.8, 300, 0, 0),
 (900010, 0, 1680.0, 1678.0, 121.7, 2.5, 300, 0, 0),
