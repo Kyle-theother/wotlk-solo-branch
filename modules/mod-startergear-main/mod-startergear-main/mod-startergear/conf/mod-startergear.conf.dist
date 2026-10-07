@@ -1,0 +1,86 @@
+################################################################################
+#  mod-startergear.conf
+#  Configuration for the StarterGear module
+#
+#  Copy this file to your server's configs/modules/ directory
+#  (or wherever your worldserver.conf is located)
+################################################################################
+
+[worldserver]
+
+###############################################################################
+#  GENERAL
+###############################################################################
+
+# Enable or disable the module entirely
+# 1 = enabled (default), 0 = disabled
+StarterGear.Enable = 1
+
+###############################################################################
+#  BAGS
+###############################################################################
+
+# Item ID of the bag to hand out
+# Default: 41600 (Glacial Bag, 22 slots)
+StarterGear.BagId = 41600
+
+# How many bags to give per character
+# Default: 4
+StarterGear.BagCount = 4
+
+###############################################################################
+#  RIDING
+###############################################################################
+
+# Give riding skills and a mount
+# 1 = yes (default), 0 = no
+# Grants Apprentice Riding (60% ground) and Journeyman Riding (100% ground)
+# regardless of character level - learnSpell() bypasses level requirements.
+StarterGear.GiveRiding = 1
+
+# Item ID of the mount to give
+# Default: 54811 (Celestial Steed)
+# Set to 0 to skip the mount item but still grant the riding skill
+StarterGear.MountId = 54811
+
+###############################################################################
+#  CLASS TOGGLES
+#  Enable or disable .startergear per class
+#  1 = enabled, 0 = disabled
+#
+#  Class IDs:
+#    1  = Warrior        2  = Paladin       3  = Hunter
+#    4  = Rogue          5  = Priest        6  = Death Knight
+#    7  = Shaman         8  = Mage          9  = Warlock
+#    11 = Druid
+###############################################################################
+
+# Warrior
+StarterGear.Class.1.Enable = 1
+
+# Paladin
+StarterGear.Class.2.Enable = 1
+
+# Hunter
+StarterGear.Class.3.Enable = 1
+
+# Rogue
+StarterGear.Class.4.Enable = 1
+
+# Priest
+StarterGear.Class.5.Enable = 1
+
+# Death Knight
+StarterGear.Class.6.Enable = 1
+
+# Shaman
+StarterGear.Class.7.Enable = 1
+
+# Mage
+StarterGear.Class.8.Enable = 1
+
+# Warlock
+StarterGear.Class.9.Enable = 1
+
+# Druid
+StarterGear.Class.11.Enable = 1

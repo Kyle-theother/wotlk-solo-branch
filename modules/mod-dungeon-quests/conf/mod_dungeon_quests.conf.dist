@@ -1,0 +1,22 @@
+#
+# mod-dungeon-quests
+#
+# Automatically discovers which world quests belong to each AzerothCore
+# WotLK dungeon map and caches the mapping in memory. The reusable Dungeon
+# Quest Guide offers eligible quests from the current map mapping.
+
+# DungeonQuests.Enable
+#   Enables automatic dungeon quest discovery.
+#   Default: 1
+DungeonQuests.Enable = 1
+
+# DungeonQuests.Debug
+#   Logs individual quest membership decisions during discovery/reload.
+#   Default: 0
+DungeonQuests.Debug = 0
+
+# DungeonQuests.EnableAcceptAll
+#   Shows Accept All Available Quests on the Dungeon Quest Guide.
+#   Each quest still uses normal player eligibility and capacity checks.
+#   Default: 1
+DungeonQuests.EnableAcceptAll = 1
