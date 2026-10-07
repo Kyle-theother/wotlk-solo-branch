@@ -1943,7 +1943,7 @@ StrictNames.Reserved = 1
 #        Default:     1 - Enabled
 #                     0 - Disabled
 
-StrictNames.Profanity = 1
+StrictNames.Profanity = 0
 
 #
 #    StrictPlayerNames
@@ -2041,7 +2041,7 @@ CharactersPerRealm = 10
 #        Range:       1-10
 #        Default:     1
 
-HeroicCharactersPerRealm = 1
+HeroicCharactersPerRealm = 10
 
 #
 #    CharacterCreating.MinLevelForHeroicCharacter
@@ -2051,7 +2051,7 @@ HeroicCharactersPerRealm = 1
 #                     0  - (Disabled)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
-CharacterCreating.MinLevelForHeroicCharacter = 55
+CharacterCreating.MinLevelForHeroicCharacter = 0
 
 #
 #    StartPlayerLevel
@@ -2085,7 +2085,7 @@ SkipCinematics = 0
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 0
+StartPlayerMoney = 100000
 
 #
 #    StartHeroicPlayerMoney
@@ -2093,7 +2093,7 @@ StartPlayerMoney = 0
 #        Default:     2000
 #                     2000 - (20 Silver)
 
-StartHeroicPlayerMoney = 2000
+StartHeroicPlayerMoney = 200000
 
 #
 #    PlayerStart.String
@@ -2113,7 +2113,7 @@ PlayerStart.String = ""
 #        Default:     0 - Disabled
 #                     1 - Enabled
 
-EnablePlayerSettings = 0
+EnablePlayerSettings = 1
 
 #
 #    MaxPlayerLevel
@@ -2129,7 +2129,7 @@ MaxPlayerLevel = 80
 #        Description: Level requirement for Dual Talent Specialization
 #        Default:     40
 
-MinDualSpecLevel = 40
+MinDualSpecLevel = 10
 
 #
 #    WaterBreath.Timer
@@ -2722,7 +2722,7 @@ DurabilityLossChance.Block = 0.05
 #                     MaxPlayerLevel+1 - (Disabled)
 #                     -10              - (Enabled, Level 1+ characters have 10 minute duration)
 
-Death.SicknessLevel = 11
+Death.SicknessLevel = MaxPlayerLevel+1
 
 #
 #    Death.CorpseReclaimDelay.PvP
