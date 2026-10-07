@@ -1,5 +1,5 @@
 -- Essence of the Immortals, cloned from a potion and displayed as item 34544.
--- Roy is cloned from Jeeves so the insert matches the current creature_template columns.
+-- The summoned totem is Jarvis, cloned from Jeeves.
 
 DELETE FROM `npc_vendor` WHERE `item` = 900014;
 DELETE FROM `item_template` WHERE `entry` = 900014;
@@ -10,7 +10,7 @@ CREATE TEMPORARY TABLE `tmp_essence` AS SELECT * FROM `item_template` WHERE `ent
 UPDATE `tmp_essence` SET
     `entry` = 900014,
     `name` = 'Essence of the Immortals',
-    `description` = 'Chaotic energy pulses through this object. Use: grants the raid buffs. In a dungeon, core spells apply raid debuffs and summon Roy.',
+    `description` = 'Chaotic energy pulses through this object. Use: grants the raid buffs. In a dungeon, core spells apply raid debuffs and summon Jarvis.',
     `Quality` = 4,
     `Flags` = 134217728,
     `bonding` = 1,
@@ -49,18 +49,18 @@ DROP TEMPORARY TABLE `tmp_essence`;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `VerifiedBuild`) VALUES
 (900010, 30, 900014, 0, 0, 0, 0);
 
-CREATE TEMPORARY TABLE `tmp_roy` AS SELECT * FROM `creature_template` WHERE `entry` = 35642;
-UPDATE `tmp_roy` SET
+CREATE TEMPORARY TABLE `tmp_jarvis_totem` AS SELECT * FROM `creature_template` WHERE `entry` = 35642;
+UPDATE `tmp_jarvis_totem` SET
     `entry` = 900015,
-    `name` = 'Roy',
+    `name` = 'Jarvis',
     `subname` = 'Totem',
     `faction` = 35,
     `npcflag` = 0,
     `unit_flags` = 33554690,
     `type` = 11,
-    `ScriptName` = 'npc_roy_totem';
-INSERT INTO `creature_template` SELECT * FROM `tmp_roy`;
-DROP TEMPORARY TABLE `tmp_roy`;
+    `ScriptName` = 'npc_jarvis_totem';
+INSERT INTO `creature_template` SELECT * FROM `tmp_jarvis_totem`;
+DROP TEMPORARY TABLE `tmp_jarvis_totem`;
 
 INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`) VALUES
 (900015, 0, 29354, 0.6, 1);
