@@ -21,7 +21,7 @@ Auctionator.Enabled = 1
 Auctionator.CharacterId = 2
 
 # the character id
-Auctionator.CharacterGuid = 2
+Auctionator.CharacterGuid = 5
 
 ########################################
 # Seller configuration
