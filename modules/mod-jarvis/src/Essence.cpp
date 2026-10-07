@@ -35,13 +35,13 @@ public:
         if (!player || !victim || victim == player || !player->IsHostileTo(victim))
             return;
 
+        uint32 now = getMSTime();
         auto armed = essenceArmedUntil.find(player->GetGUID());
-        if (armed == essenceArmedUntil.end() || getMSTimeDiff(getMSTime(), armed->second) == 0)
+        if (armed == essenceArmedUntil.end() || getMSTimeDiff(armed->second, now) < 60 * MINUTE * IN_MILLISECONDS)
             return;
 
-        uint32 now = getMSTime();
         auto next = essenceNextDebuff.find(player->GetGUID());
-        if (next != essenceNextDebuff.end() && getMSTimeDiff(next->second, now) > 8 * IN_MILLISECONDS)
+        if (next != essenceNextDebuff.end() && getMSTimeDiff(next->second, now) < 8 * IN_MILLISECONDS)
             return;
 
         uint32 const debuffs[] =
@@ -56,7 +56,7 @@ public:
         };
         for (uint32 spell : debuffs)
             player->AddAura(spell, victim);
-        essenceNextDebuff[player->GetGUID()] = now + 8 * IN_MILLISECONDS;
+        essenceNextDebuff[player->GetGUID()] = now;
     }
 };
 
