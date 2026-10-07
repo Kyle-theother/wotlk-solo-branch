@@ -1,6 +1,5 @@
 #include "Chat.h"
 #include "CreatureScript.h"
-#include "DatabaseEnv.h"
 #include "InstanceSaveMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
@@ -9,8 +8,7 @@
 
 constexpr uint32 GOLD_REP = 200000;
 constexpr uint32 GOLD_PROF = 200000;
-constexpr uint32 GOLD_GEAR = 10000;
-constexpr uint32 GOLD_HEIRLOOM = 10000;
+constexpr uint32 GOLD_ONE = 10000;
 
 enum JarvisAction
 {
@@ -22,22 +20,11 @@ enum JarvisAction
     ACT_TRAVEL = 6,
     ACT_CITIES = 7,
     ACT_RAIDS = 8,
-    ACT_ZONES = 9,
-    ACT_GEAR = 10
+    ACT_ZONES = 9
 };
 
-struct JarvisDest
-{
-    char const* name;
-    uint32 map;
-    float x, y, z, o;
-};
-
-struct JarvisFaction
-{
-    char const* name;
-    uint32 id;
-};
+struct JarvisDest { char const* name; uint32 map; float x, y, z, o; };
+struct JarvisFaction { char const* name; uint32 id; };
 
 static JarvisDest const cities[] =
 {
@@ -58,18 +45,10 @@ static JarvisDest const raids[] =
     { "Naxxramas", 571, 3668.0f, -1262.0f, 243.0f, 5.0f },
     { "Ulduar", 571, 9345.0f, -1114.0f, 1245.0f, 5.7f },
     { "Icecrown Citadel", 571, 5873.0f, 2110.0f, 636.0f, 1.5f },
-    { "Obsidian Sanctum", 571, 3472.0f, 264.0f, -120.0f, 3.2f },
-    { "Eye of Eternity", 571, 3860.0f, 6985.0f, 152.0f, 5.8f },
-    { "Vault of Archavon", 571, 5440.0f, 2840.0f, 420.0f, 0.0f },
     { "Onyxia's Lair", 1, -4707.0f, -3726.0f, 54.0f, 3.4f },
     { "Molten Core", 0, -7523.0f, -1228.0f, 285.0f, 4.5f },
-    { "Blackwing Lair", 0, -7672.0f, -1107.0f, 397.0f, 3.1f },
-    { "Ahn'Qiraj", 1, -8242.0f, 1991.0f, 129.0f, 0.9f },
     { "Karazhan", 0, -11118.0f, -2011.0f, 47.0f, 0.6f },
-    { "Serpentshrine Cavern", 530, 795.0f, 6867.0f, -65.0f, 6.2f },
-    { "The Eye", 530, 3087.0f, 1383.0f, 185.0f, 4.6f },
-    { "Black Temple", 530, -3644.0f, 316.0f, 35.0f, 2.9f },
-    { "Sunwell Plateau", 530, 12574.0f, -6774.0f, 15.0f, 3.1f }
+    { "Black Temple", 530, -3644.0f, 316.0f, 35.0f, 2.9f }
 };
 
 static JarvisDest const zones[] =
@@ -85,11 +64,26 @@ static JarvisFaction const factions[] =
     { "Cenarion Circle", 609 }, { "Argent Crusade", 1106 }, { "Kirin Tor", 1090 }, { "Knights of the Ebon Blade", 1098 }, { "Wyrmrest Accord", 1091 }
 };
 
-static uint32 const professions[] = { 164, 165, 171, 182, 186, 197, 202, 333, 393, 755, 773, 129, 185, 356 };
-static uint8 const gearLevels[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80 };
+static uint32 const professionSpells[] =
+{
+    2259, 3101, 3464, 11611, 28596, 51304,
+    2018, 3100, 3538, 9785, 29844, 51300,
+    7411, 7412, 7413, 13920, 28029, 51313,
+    4036, 4037, 4038, 12656, 30350, 51306,
+    2366, 2368, 3570, 11993, 28695, 50300,
+    45357, 45358, 45359, 45360, 45361, 45363,
+    25229, 25230, 28894, 28895, 28897, 51311,
+    2108, 3104, 3811, 10662, 32549, 51302,
+    2575, 2576, 3564, 10248, 29354, 50310,
+    8613, 8617, 8618, 10768, 32678, 50305,
+    3908, 3909, 3910, 12180, 26790, 51309,
+    2550, 3102, 3413, 18260, 33359, 51296,
+    3273, 3274, 7924, 10846, 27028, 45542,
+    7620, 7731, 7732, 18248, 33095, 51294
+};
 
+static uint32 const professionSkills[] = { 171, 164, 333, 202, 182, 773, 755, 165, 186, 393, 197, 185, 129, 356 };
 static char const* const classNames[] = { "", "Warrior", "Paladin", "Hunter", "Rogue", "Priest", "Death Knight", "Shaman", "Mage", "Warlock", "", "Druid" };
-
 static uint32 const heirloomSets[][6] =
 {
     { 0 },
@@ -106,73 +100,15 @@ static uint32 const heirloomSets[][6] =
     { 42952, 48689, 42947, 48718, 42992, 0 }
 };
 
-static bool TakeGold(Player* player, uint32 copper, char const* what)
+static bool TakeGold(Player* player, uint32 copper)
 {
     if (player->GetMoney() < copper)
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("Jarvis requires {} gold for {}.", copper / 10000, what);
+        ChatHandler(player->GetSession()).SendSysMessage("You do not have enough gold.");
         return false;
     }
     player->ModifyMoney(-int32(copper));
     return true;
-}
-
-static void GiveHeirloomSet(Player* player, uint8 classId)
-{
-    if (classId > 11 || !heirloomSets[classId][0])
-        return;
-    uint32 given = 0;
-    for (uint32 item : heirloomSets[classId])
-    {
-        if (!item)
-            break;
-        if (player->AddItem(item, 1))
-            ++given;
-    }
-    ChatHandler(player->GetSession()).PSendSysMessage("Jarvis handed over {} heirloom pieces.", given);
-}
-
-static void GiveGear(Player* player, uint8 level, uint8 role)
-{
-    uint32 armorSub = 1;
-    switch (player->getClass())
-    {
-        case CLASS_WARRIOR:
-        case CLASS_PALADIN:
-        case CLASS_DEATH_KNIGHT: armorSub = 4; break;
-        case CLASS_HUNTER:
-        case CLASS_SHAMAN: armorSub = 3; break;
-        case CLASS_ROGUE:
-        case CLASS_DRUID: armorSub = 2; break;
-        default: armorSub = 1; break;
-    }
-    uint32 stat = role == 1 ? 7 : (role == 4 ? 3 : 5);
-    uint32 minLevel = level > 5 ? level - 5 : 1;
-    QueryResult result = WorldDatabase.Query(
-        "SELECT entry, InventoryType FROM item_template "
-        "WHERE Quality = 2 AND class = 4 AND subclass = {} AND RequiredLevel BETWEEN {} AND {} "
-        "AND (AllowableClass = -1 OR AllowableClass & {}) AND InventoryType IN (1,3,5,6,7,8,9,10) "
-        "AND (stat_type1 = {} OR stat_type2 = {} OR stat_type3 = {}) "
-        "ORDER BY RequiredLevel DESC",
-        armorSub, minLevel, level, player->getClassMask(), stat, stat, stat);
-    if (!result)
-    {
-        ChatHandler(player->GetSession()).SendSysMessage("Jarvis has no green set for that level and role.");
-        return;
-    }
-    bool used[32] = {};
-    uint32 given = 0;
-    do
-    {
-        uint32 entry = (*result)[0].Get<uint32>();
-        uint32 slot = (*result)[1].Get<uint32>();
-        if (slot < 32 && !used[slot] && player->AddItem(entry, 1))
-        {
-            used[slot] = true;
-            ++given;
-        }
-    } while (result->NextRow());
-    ChatHandler(player->GetSession()).PSendSysMessage("Jarvis handed over {} green pieces.", given);
 }
 
 class npc_jarvis : public CreatureScript
@@ -183,11 +119,10 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "What do you have for sale?", GOSSIP_SENDER_MAIN, ACT_SALE);
-        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Which professions can you teach me?", GOSSIP_SENDER_MAIN, ACT_PROF);
+        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Which professions can you teach me?", GOSSIP_SENDER_MAIN, ACT_PROF, "Learn every profession at 450 for 2000 gold?", GOLD_PROF, false);
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Can you help me gain reputation?", GOSSIP_SENDER_MAIN, ACT_REP);
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "I'd like to reset all instances", GOSSIP_SENDER_MAIN, ACT_RESET);
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "I'd like to reset all instances", GOSSIP_SENDER_MAIN, ACT_RESET, "Reset all instance locks for 1 gold?", GOLD_ONE, false);
         AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "I'd like to purchase a class heirloom set", GOSSIP_SENDER_MAIN, ACT_HEIRLOOM);
-        AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "I'd like to purchase a green gear set", GOSSIP_SENDER_MAIN, ACT_GEAR);
         AddGossipItemFor(player, GOSSIP_ICON_TAXI, "Where can you take me?", GOSSIP_SENDER_MAIN, ACT_TRAVEL);
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Nevermind", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -196,69 +131,74 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
-        ClearGossipMenuFor(player);
         if (sender == ACT_CITIES && action < sizeof(cities) / sizeof(cities[0]))
         {
-            player->TeleportTo(cities[action].map, cities[action].x, cities[action].y, cities[action].z, cities[action].o);
             CloseGossipMenuFor(player);
+            player->TeleportTo(cities[action].map, cities[action].x, cities[action].y, cities[action].z, cities[action].o);
             return true;
         }
         if (sender == ACT_RAIDS && action < sizeof(raids) / sizeof(raids[0]))
         {
-            player->TeleportTo(raids[action].map, raids[action].x, raids[action].y, raids[action].z, raids[action].o);
             CloseGossipMenuFor(player);
+            player->TeleportTo(raids[action].map, raids[action].x, raids[action].y, raids[action].z, raids[action].o);
             return true;
         }
         if (sender == ACT_ZONES && action < sizeof(zones) / sizeof(zones[0]))
         {
-            player->TeleportTo(zones[action].map, zones[action].x, zones[action].y, zones[action].z, zones[action].o);
             CloseGossipMenuFor(player);
+            player->TeleportTo(zones[action].map, zones[action].x, zones[action].y, zones[action].z, zones[action].o);
             return true;
         }
         if (sender == ACT_REP && action < sizeof(factions) / sizeof(factions[0]))
         {
-            if (TakeGold(player, GOLD_REP, "that reputation"))
+            CloseGossipMenuFor(player);
+            if (TakeGold(player, GOLD_REP))
                 if (FactionEntry const* faction = sFactionStore.LookupEntry(factions[action].id))
                     player->GetReputationMgr().SetOneFactionReputation(faction, 42000, false);
-            CloseGossipMenuFor(player);
             return true;
         }
         if (sender == ACT_HEIRLOOM && action >= CLASS_WARRIOR && action <= CLASS_DRUID && action != 10)
         {
-            if (TakeGold(player, GOLD_HEIRLOOM, "an heirloom set"))
-                GiveHeirloomSet(player, action);
             CloseGossipMenuFor(player);
-            return true;
-        }
-        if (sender == ACT_GEAR && action >= 10)
-        {
-            if (TakeGold(player, GOLD_GEAR, "a gear set"))
-                GiveGear(player, action / 10, action % 10);
-            CloseGossipMenuFor(player);
+            if (TakeGold(player, GOLD_ONE))
+                for (uint32 item : heirloomSets[action])
+                    if (item)
+                        player->AddItem(item, 1);
             return true;
         }
 
+        ClearGossipMenuFor(player);
         switch (action)
         {
             case ACT_SALE:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 return true;
             case ACT_PROF:
-                if (TakeGold(player, GOLD_PROF, "max professions"))
-                    for (uint32 skill : professions)
-                        player->SetSkill(skill, 1, 450, 450);
                 CloseGossipMenuFor(player);
+                if (TakeGold(player, GOLD_PROF))
+                {
+                    for (uint32 spell : professionSpells)
+                        player->learnSpell(spell, false);
+                    for (uint32 skill : professionSkills)
+                        player->SetSkill(skill, 1, 450, 450);
+                }
                 return true;
             case ACT_RESET:
-                Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_ALL, false);
-                Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_ALL, true);
-                ChatHandler(player->GetSession()).SendSysMessage("Jarvis has reset your instance locks.");
                 CloseGossipMenuFor(player);
+                if (TakeGold(player, GOLD_ONE))
+                {
+                    Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_ALL, false);
+                    Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_ALL, true);
+                }
                 return true;
+            case ACT_REP:
+                for (uint32 i = 0; i < sizeof(factions) / sizeof(factions[0]); ++i)
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, factions[i].name, ACT_REP, i, "Buy exalted reputation for 2000 gold?", GOLD_REP, false);
+                break;
             case ACT_HEIRLOOM:
                 for (uint8 classId = CLASS_WARRIOR; classId <= CLASS_DRUID; ++classId)
                     if (classId != 10)
-                        AddGossipItemFor(player, GOSSIP_ICON_VENDOR, classNames[classId], ACT_HEIRLOOM, classId);
+                        AddGossipItemFor(player, GOSSIP_ICON_VENDOR, classNames[classId], ACT_HEIRLOOM, classId, "Buy this heirloom set for 1 gold?", GOLD_ONE, false);
                 break;
             case ACT_TRAVEL:
                 AddGossipItemFor(player, GOSSIP_ICON_TAXI, "Cities", GOSSIP_SENDER_MAIN, ACT_CITIES);
@@ -276,15 +216,6 @@ public:
             case ACT_ZONES:
                 for (uint32 i = 0; i < sizeof(zones) / sizeof(zones[0]); ++i)
                     AddGossipItemFor(player, GOSSIP_ICON_TAXI, zones[i].name, ACT_ZONES, i);
-                break;
-            case ACT_GEAR:
-                for (uint8 level : gearLevels)
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, std::string("Level ") + std::to_string(level) + " tank", ACT_GEAR, level * 10 + 1);
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, std::string("Level ") + std::to_string(level) + " healer", ACT_GEAR, level * 10 + 2);
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, std::string("Level ") + std::to_string(level) + " caster", ACT_GEAR, level * 10 + 3);
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, std::string("Level ") + std::to_string(level) + " physical", ACT_GEAR, level * 10 + 4);
-                }
                 break;
             default:
                 CloseGossipMenuFor(player);
