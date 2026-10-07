@@ -1,7 +1,6 @@
 #include "ItemScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellMgr.h"
 
 class item_essence_of_immortals : public ItemScript
 {
@@ -13,7 +12,7 @@ public:
         uint32 const buffs[] = { 48470, 48162, 48074, 43002, 48934, 48938, 25898, 47436 };
         for (uint32 spell : buffs)
             player->CastSpell(player, spell, true);
-        return false;
+        return true;
     }
 };
 
