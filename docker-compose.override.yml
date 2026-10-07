@@ -5,6 +5,7 @@
 # IndividualProgression.Enable 0 stops zone, raid, and level locks.
 # Logout.LogoutDelay is milliseconds. 5000 is a 5 second logout.
 # Rate.Corpse.Decay.Looted is required by mod-aoe-loot so looted corpses disappear quickly.
+# DungeonRespawn.Enable sends a dead player back to the dungeon entrance.
 services:
   ac-worldserver:
     environment:
@@ -18,3 +19,5 @@ services:
       AC_RATE_CORPSE_DECAY_LOOTED: "0.01"
       AC_AOE_LOOT_ENABLE: "1"
       AC_AOE_LOOT_RANGE: "55.0"
+      AC_DUNGEON_RESPAWN_ENABLE: "1"
+      AC_DUNGEON_RESPAWN_RESPAWN_HEALTH_PCT: "100.0"
