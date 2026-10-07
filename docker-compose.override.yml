@@ -11,6 +11,7 @@
 # StarterGear.Enable lets a character use .startergear once.
 # DungeonQuests.Enable adds the dungeon quest guide and the accept-all option.
 # AllowTwoSide lets opposite factions group, trade, chat, mail, and guild.
+# Auctionator stocks the auction houses. CharacterGuid must be a real character.
 services:
   ac-worldserver:
     environment:
@@ -41,3 +42,11 @@ services:
       AC_ALLOW_TWO_SIDE_TRADE: "1"
       AC_ALLOW_TWO_SIDE_WHO_LIST: "1"
       AC_ALLOW_TWO_SIDE_ADD_FRIEND: "1"
+      AC_AUCTIONATOR_ENABLED: "1"
+      AC_AUCTIONATOR_CHARACTER_GUID: "1"
+      AC_AUCTIONATOR_ALLIANCE_SELLER_ENABLED: "1"
+      AC_AUCTIONATOR_HORDE_SELLER_ENABLED: "1"
+      AC_AUCTIONATOR_NEUTRAL_SELLER_ENABLED: "1"
+      AC_AUCTIONATOR_ALLIANCE_SELLER_MAX_AUCTIONS: "2000"
+      AC_AUCTIONATOR_HORDE_SELLER_MAX_AUCTIONS: "2000"
+      AC_AUCTIONATOR_NEUTRAL_SELLER_MAX_AUCTIONS: "2000"
