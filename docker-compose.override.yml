@@ -16,6 +16,7 @@
 # SoloLFG lets the dungeon finder queue with fewer than 5 players. FixedXP stays off.
 # Faction-Free DBC files replace the stock faction and achievement tables.
 # ALE loads lua_scripts on worldserver start.
+# LFGDungeons.dbc lists every normal and heroic dungeon through level 80.
 services:
   ac-worldserver:
     environment:
@@ -64,4 +65,5 @@ services:
       - ./modules/mod-Faction-Free/dbc/Achievement.dbc:/azerothcore/env/dist/data/dbc/Achievement.dbc:ro
       - ./modules/mod-Faction-Free/dbc/Faction.dbc:/azerothcore/env/dist/data/dbc/Faction.dbc:ro
       - ./modules/mod-Faction-Free/dbc/FactionTemplate.dbc:/azerothcore/env/dist/data/dbc/FactionTemplate.dbc:ro
+      - ./data/dbc/LFGDungeons.dbc:/azerothcore/env/dist/data/dbc/LFGDungeons.dbc:ro
       - ./lua_scripts:/azerothcore/env/dist/lua_scripts:ro
