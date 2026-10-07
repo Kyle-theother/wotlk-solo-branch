@@ -2,7 +2,7 @@
     This will change item stack sizes for Vanilla items to Vanilla stack sizes,
     and TBC items to TBC stack sizes. Higher stack sizes are mostly just QoL,
     so some players may wish to exclude this optional file.
-*/
+
 
 UPDATE item_template SET stackable = 5  WHERE entry = 118;  -- Minor Healing Potion
 UPDATE item_template SET stackable = 10 WHERE entry = 723;  -- Goretusk Liver
@@ -498,3 +498,5 @@ UPDATE item_template SET stackable = 1  WHERE entry = 35230; -- Darnarian's Scro
 UPDATE item_template SET stackable = 5  WHERE entry = 35716; -- Shattrath Flask of Pure Death
 UPDATE item_template SET stackable = 5  WHERE entry = 35717; -- Shattrath Flask of Blinding Light
 UPDATE item_template SET stackable = 20 WHERE entry = 38577; -- Party G.R.E.N.A.D.E.
+
+*/
