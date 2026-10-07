@@ -1,9 +1,10 @@
 -- Jarvis beside each race's first spawn. This database uses creature.id, not id1.
+-- Deathknell uses Tirisfal map 29.9, 71.8, world 1670.7, 1691.9, 121.7.
 
 INSERT INTO `creature` (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `MovementType`) VALUES
 (900010, 0, -8945.0, -132.0, 83.5, 0.0, 300, 0, 0),
 (900010, 0, -6235.0, 331.0, 383.0, 0.8, 300, 0, 0),
-(900010, 0, 1680.0, 1678.0, 121.7, 2.5, 300, 0, 0),
+(900010, 0, 1670.7, 1691.9, 121.7, 2.5, 300, 0, 0),
 (900010, 1, -614.0, -4251.0, 38.7, 0.5, 300, 0, 0),
 (900010, 1, -2913.0, -257.0, 53.0, 4.7, 300, 0, 0),
 (900010, 1, 10315.0, 832.0, 1326.4, 5.5, 300, 0, 0),
