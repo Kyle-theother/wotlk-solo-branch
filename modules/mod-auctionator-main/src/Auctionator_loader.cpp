@@ -15,3 +15,8 @@ void Addmod_auctionatorScripts()
     AddAuctionatorCommands();
 }
 
+// The downloaded folder is mod-auctionator-main, so the generated loader calls this name.
+void Addmod_auctionator_mainScripts()
+{
+    Addmod_auctionatorScripts();
+}
