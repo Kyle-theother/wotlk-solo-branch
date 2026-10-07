@@ -60,7 +60,7 @@ public:
     }
 };
 
-void Addmod_royScripts()
+void AddRoyCreatureScripts()
 {
     new roy();
 }
