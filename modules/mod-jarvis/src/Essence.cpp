@@ -14,7 +14,7 @@
 #include <unordered_set>
 
 constexpr uint32 ESSENCE_ITEM = 900014;
-constexpr uint32 ROY_TOTEM = 900015;
+constexpr uint32 JARVIS_TOTEM = 900015;
 
 static uint32 const RAID_BUFFS[] = { 48470, 48162, 48074, 43002, 48934, 48938, 25898, 47436 };
 static uint32 const RAID_DEBUFFS[] = { 47467, 47865, 770, 47437, 47486, 53338, 48564 };
@@ -33,7 +33,7 @@ static std::unordered_set<uint32> const TRIGGER_SPELLS =
     23881, 12294, 47486, 78, 47450, 5308, 47471
 };
 
-static std::unordered_map<ObjectGuid, uint32> nextRoyTotem;
+static std::unordered_map<ObjectGuid, uint32> nextJarvisTotem;
 
 static bool HasEssence(Player* player)
 {
@@ -64,11 +64,11 @@ static void ApplyRaidDebuffs(Player* player, Unit* victim)
         player->AddAura(spell, victim);
 }
 
-static void SummonRoy(Player* player, Unit* target)
+static void SummonJarvisTotem(Player* player, Unit* target)
 {
     uint32 now = getMSTime();
-    auto itr = nextRoyTotem.find(player->GetGUID());
-    if (itr != nextRoyTotem.end() && getMSTimeDiff(itr->second, now) < 20 * IN_MILLISECONDS)
+    auto itr = nextJarvisTotem.find(player->GetGUID());
+    if (itr != nextJarvisTotem.end() && getMSTimeDiff(itr->second, now) < 20 * IN_MILLISECONDS)
         return;
 
     Position pos = player->GetPosition();
@@ -76,10 +76,10 @@ static void SummonRoy(Player* player, Unit* target)
         pos = target->GetPosition();
     pos.m_positionX += 2.0f;
 
-    if (Creature* totem = player->SummonCreature(ROY_TOTEM, pos, TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
+    if (Creature* totem = player->SummonCreature(JARVIS_TOTEM, pos, TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
     {
         totem->SetFaction(player->GetFaction());
-        nextRoyTotem[player->GetGUID()] = now;
+        nextJarvisTotem[player->GetGUID()] = now;
     }
 }
 
@@ -96,14 +96,14 @@ public:
     }
 };
 
-class npc_roy_totem : public CreatureScript
+class npc_jarvis_totem : public CreatureScript
 {
 public:
-    npc_roy_totem() : CreatureScript("npc_roy_totem") { }
+    npc_jarvis_totem() : CreatureScript("npc_jarvis_totem") { }
 
-    struct npc_roy_totemAI : public ScriptedAI
+    struct npc_jarvis_totemAI : public ScriptedAI
     {
-        explicit npc_roy_totemAI(Creature* creature) : ScriptedAI(creature), timer(2000) { }
+        explicit npc_jarvis_totemAI(Creature* creature) : ScriptedAI(creature), timer(2000) { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -121,7 +121,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_roy_totemAI(creature);
+        return new npc_jarvis_totemAI(creature);
     }
 };
 
@@ -147,13 +147,13 @@ public:
         if (!target)
             target = player->GetSelectedUnit();
         ApplyRaidDebuffs(player, target);
-        SummonRoy(player, target);
+        SummonJarvisTotem(player, target);
     }
 };
 
 void AddJarvisItemScripts()
 {
     new item_essence_of_immortals();
-    new npc_roy_totem();
+    new npc_jarvis_totem();
     new essence_player();
 }
