@@ -1,33 +1,31 @@
--- --------------------------------------------------------------------------------------
---	EQUIPMENT PROFICIENCY TRAINER - 600001
--- --------------------------------------------------------------------------------------
-SET
-@Entry 		:= 600001,
-@Model 		:= 26571, -- The Black Knight
-@Name 		:= "The Gentle Goliath",
-@Title 		:= "Equipment Proficiency Trainer",
-@Icon 		:= "Speak",
-@GossipMenu := 0,
-@MinLevel 	:= 80,
-@MaxLevel 	:= 80,
-@Faction 	:= 35,
-@NPCFlag 	:= 1,
-@Scale		:= 1.0,
-@Rank		:= 0,
-@Type 		:= 7,
-@TypeFlags 	:= 0,
-@FlagsExtra := 2,
-@AIName		:= "SmartAI",
-@Script 	:= "SubClass_NPC";
+-- Equipment proficiency trainer, entry 600001.
+-- Cloned from Jeeves so it matches the current creature_template columns.
 
--- NPC
-DELETE FROM `creature_template` WHERE `entry` = @Entry;
-INSERT INTO `creature_template` (`entry`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `unit_class`, `unit_flags`, `type`, `type_flags`, `RegenHealth`, `flags_extra`, `AiName`, `ScriptName`) VALUES
-(@Entry, @Name, @Title, @Icon, @GossipMenu, @MinLevel, @MaxLevel, @Faction, @NPCFlag, 1, 1.14286, 1, @Rank, 1, 2, @Type, @TypeFlags, 1, @FlagsExtra, @AIName, @Script);
+DELETE FROM `creature_template_model` WHERE `CreatureID` = 600001;
+DELETE FROM `creature_template` WHERE `entry` = 600001;
+DELETE FROM `npc_text` WHERE `ID` = 600001;
 
-DELETE FROM `creature_template_model` WHERE `CreatureID` = @Entry;
+CREATE TEMPORARY TABLE `tmp_goliath` AS SELECT * FROM `creature_template` WHERE `entry` = 35642;
+UPDATE `tmp_goliath` SET
+    `entry` = 600001,
+    `name` = 'The Gentle Goliath',
+    `subname` = 'Equipment Proficiency Trainer',
+    `IconName` = 'Speak',
+    `gossip_menu_id` = 0,
+    `minlevel` = 80,
+    `maxlevel` = 80,
+    `faction` = 35,
+    `npcflag` = 1,
+    `unit_flags` = 2,
+    `type` = 7,
+    `flags_extra` = 2,
+    `AiName` = 'SmartAI',
+    `ScriptName` = 'SubClass_NPC';
+INSERT INTO `creature_template` SELECT * FROM `tmp_goliath`;
+DROP TEMPORARY TABLE `tmp_goliath`;
+
 INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`) VALUES
-(@Entry, 0, @Model, @Scale, 1);
+(600001, 0, 26571, 1, 1);
 
-DELETE FROM `npc_text` WHERE `ID` = @Entry;
-INSERT INTO `npc_text` (`ID`, `text0_0`) VALUES (@Entry, 'Greetings $N. I can teach you anything and everything about equipment!!!');
+INSERT INTO `npc_text` (`ID`, `text0_0`) VALUES
+(600001, 'Greetings $N. I can teach you anything and everything about equipment!!!');
