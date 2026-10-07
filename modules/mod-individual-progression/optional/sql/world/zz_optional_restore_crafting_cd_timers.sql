@@ -1,7 +1,7 @@
 /* 
     This optional SQL file restores cooldown timers for Vanilla and TBC crafting recipes.
     This may require a reset of the item WDB client cache files. 
-*/
+
 
 
 /* Vanilla */
@@ -40,3 +40,6 @@ INSERT INTO `spell_cooldown_overrides` (`Id`, `RecoveryTime`, `CategoryRecoveryT
 (26751, 331200000, 331200000, 0, 0, "Primal Mooncloth - 3 days 20 hours"),        -- Primal Mooncloth
 (31373, 331200000, 331200000, 0, 0, "Spellcloth - 3 days 20 hours"),              -- Spellcloth
 (36686, 331200000, 331200000, 0, 0, "Shadowcloth - 3 days 20 hours");             -- Shadowcloth
+
+*/
+
