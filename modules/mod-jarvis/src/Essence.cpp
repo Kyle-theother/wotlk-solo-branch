@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "PlayerScript.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
@@ -70,11 +71,14 @@ static void SummonRoy(Player* player, Unit* target)
     if (itr != nextRoyTotem.end() && getMSTimeDiff(itr->second, now) < 20 * IN_MILLISECONDS)
         return;
 
-    Position pos = target && target != player ? target->GetPosition() : player->GetNearPosition(3.0f, 0.0f);
+    Position pos = player->GetPosition();
+    if (target && target != player)
+        pos = target->GetPosition();
+    pos.m_positionX += 2.0f;
+
     if (Creature* totem = player->SummonCreature(ROY_TOTEM, pos, TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
     {
         totem->SetFaction(player->GetFaction());
-        totem->SetOwnerGUID(player->GetGUID());
         nextRoyTotem[player->GetGUID()] = now;
     }
 }
@@ -99,7 +103,7 @@ public:
 
     struct npc_roy_totemAI : public ScriptedAI
     {
-        npc_roy_totemAI(Creature* creature) : ScriptedAI(creature), timer(2000) { }
+        explicit npc_roy_totemAI(Creature* creature) : ScriptedAI(creature), timer(2000) { }
 
         void UpdateAI(uint32 diff) override
         {
