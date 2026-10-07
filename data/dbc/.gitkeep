@@ -1,2 +1,0 @@
-Placeholder so GitHub keeps data/dbc. Spell.dbc is client data and is not stored here.
-The worldserver loads DBC files from its DataDir, normally env/dist/bin/dbc inside the container.
