@@ -13,6 +13,7 @@
 # AllowTwoSide lets opposite factions group, trade, chat, mail, and guild.
 # Auctionator stocks the auction houses. CharacterGuid must be a real character.
 # StartPlayerMoney is copper. 10000 is 1 gold.
+# SoloLFG lets the dungeon finder queue with fewer than 5 players. FixedXP stays off.
 services:
   ac-worldserver:
     environment:
@@ -53,3 +54,5 @@ services:
       AC_AUCTIONATOR_NEUTRAL_SELLER_MAX_AUCTIONS: "2000"
       AC_START_PLAYER_MONEY: "10000"
       AC_START_HEROIC_PLAYER_MONEY: "10000"
+      AC_SOLO_LFG_ENABLE: "1"
+      AC_SOLO_LFG_FIXED_XP: "0"
