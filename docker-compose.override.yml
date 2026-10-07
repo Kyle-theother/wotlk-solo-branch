@@ -4,6 +4,7 @@
 # ModWarEffort.Enable turns on the Gates of Ahn'Qiraj war effort.
 # IndividualProgression.Enable 0 stops zone, raid, and level locks.
 # Logout.LogoutDelay is milliseconds. 5000 is a 5 second logout.
+# Rate.Corpse.Decay.Looted is required by mod-aoe-loot so looted corpses disappear quickly.
 services:
   ac-worldserver:
     environment:
@@ -14,3 +15,6 @@ services:
       AC_DBC_ENFORCE_ITEM_ATTRIBUTES: "0"
       AC_INDIVIDUAL_PROGRESSION_ENABLE: "0"
       AC_LOGOUT_LOGOUT_DELAY: "5000"
+      AC_RATE_CORPSE_DECAY_LOOTED: "0.01"
+      AC_AOE_LOOT_ENABLE: "1"
+      AC_AOE_LOOT_RANGE: "55.0"
