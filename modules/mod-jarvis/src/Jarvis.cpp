@@ -1,5 +1,6 @@
 #include "Chat.h"
 #include "CreatureScript.h"
+#include "DatabaseEnv.h"
 #include "InstanceSaveMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
@@ -17,7 +18,7 @@ enum JarvisAction
 struct JarvisDest { char const* name; uint32 map; float x, y, z, o; };
 struct JarvisFaction { char const* name; uint32 id; uint8 team; uint32 gold; };
 struct JarvisProf { char const* name; uint32 skill; uint16 scale; uint32 tool; uint32 spells[6]; };
-struct JarvisSpell { char const* name; uint32 id; uint32 gold; };
+struct JarvisSpell { char const* name; uint32 id; uint32 gold; uint8 power; };
 
 static JarvisDest const cities[] =
 {
@@ -64,25 +65,24 @@ static JarvisProf const profs[] =
 };
 static JarvisSpell const racials[] =
 {
-    { "Human racials", 59752, 200 }, { "Dwarf racials", 20594, 200 }, { "Night elf racials", 20580, 200 },
-    { "Gnome racials", 20589, 200 }, { "Draenei racials", 59542, 200 }, { "Orc racials", 33697, 200 },
-    { "Undead racials", 7744, 200 }, { "Tauren racials", 20549, 200 }, { "Troll racials", 26297, 200 }, { "Blood elf racials", 28730, 200 }
+    { "Human racials", 59752, 200, 0 }, { "Dwarf racials", 20594, 200, 0 }, { "Night elf racials", 20580, 200, 0 },
+    { "Gnome racials", 20589, 200, 0 }, { "Draenei racials", 28880, 200, 0 }, { "Orc racials", 20572, 200, 1 },
+    { "Undead racials", 7744, 200, 0 }, { "Tauren racials", 20549, 200, 0 }, { "Troll racials", 26297, 200, 0 }, { "Blood elf racials", 28730, 200, 0 }
 };
 static uint32 const racialExtra[][4] =
 {
-    { 58985, 20597, 20598, 0 }, { 2481, 20595, 20596, 0 }, { 20582, 20583, 20585 }, { 20591, 20592, 20593, 0 }, { 28875, 28880, 6562, 0 },
-    { 20572, 20573, 21563, 0 }, { 20577, 20579, 5227, 0 }, { 20550, 20551, 20552, 0 }, { 20555, 20557, 26290, 0 }, { 28877, 822, 0, 0 }
+    { 58985, 20597, 20598, 0 }, { 2481, 20595, 20596, 0 }, { 20582, 20583, 20585 }, { 20591, 20592, 20593, 0 }, { 28875, 6562, 0, 0 },
+    { 20573, 21563, 0, 0 }, { 20577, 20579, 5227, 0 }, { 20550, 20551, 20552, 0 }, { 20555, 20557, 26290, 0 }, { 28877, 822, 0, 0 }
 };
 static JarvisSpell const borrowed[] =
 {
-    { "Blessing of Kings", 20217, 500 }, { "Blessing of Might", 48932, 500 }, { "Lay on Hands", 48788, 500 },
-    { "Battle Shout", 47436, 300 }, { "Intervene", 3411, 500 }, { "Arcane Intellect", 42995, 300 },
-    { "Blink", 1953, 500 }, { "Ice Block", 45438, 800 }, { "Power Word: Fortitude", 48161, 300 },
-    { "Power Word: Shield", 48066, 500 }, { "Shadowmeld", 20580, 200 }, { "Stealth", 1784, 400 },
-    { "Sprint", 11305, 400 }, { "Rebirth", 48477, 800 }, { "Innervate", 29166, 500 },
-    { "Mark of the Wild", 48469, 300 }, { "Bloodlust", 2825, 800 }, { "Heroism", 32182, 800 },
-    { "Wind Shear", 57994, 500 }, { "Soulstone", 47883, 500 }, { "Healthstone", 47878, 300 },
-    { "Death Grip", 49576, 500 }, { "Anti-Magic Shell", 48707, 500 }
+    { "Blessing of Kings", 20217, 500, 0 }, { "Blessing of Might", 48932, 500, 0 }, { "Lay on Hands", 48788, 500, 0 },
+    { "Battle Shout", 47436, 300, 1 }, { "Intervene", 3411, 500, 1 }, { "Arcane Intellect", 42995, 300, 0 },
+    { "Blink", 1953, 500, 0 }, { "Ice Block", 45438, 800, 0 }, { "Power Word: Fortitude", 48161, 300, 0 },
+    { "Power Word: Shield", 48066, 500, 0 }, { "Stealth", 1784, 400, 3 }, { "Sprint", 11305, 400, 3 },
+    { "Rebirth", 48477, 800, 0 }, { "Innervate", 29166, 500, 0 }, { "Mark of the Wild", 48469, 300, 0 },
+    { "Bloodlust", 2825, 800, 0 }, { "Heroism", 32182, 800, 0 }, { "Wind Shear", 57994, 500, 0 },
+    { "Soulstone", 47883, 500, 0 }, { "Healthstone", 47878, 300, 0 }, { "Death Grip", 49576, 500, 6 }, { "Anti-Magic Shell", 48707, 500, 6 }
 };
 
 static uint32 ProfCost(uint16 scale, uint8 tier)
@@ -92,6 +92,20 @@ static uint32 ProfCost(uint16 scale, uint8 tier)
 }
 static uint16 ProfMax(uint8 tier) { return tier == 1 ? 300 : (tier == 2 ? 375 : 450); }
 static char const* TierName(uint8 tier) { return tier == 1 ? "Vanilla" : (tier == 2 ? "TBC" : "Wrath"); }
+static bool KnowsRacial(Player* player, uint32 index)
+{
+    if (player->HasSpell(racials[index].id)) return true;
+    for (uint32 spell : racialExtra[index]) if (spell && player->HasSpell(spell)) return true;
+    return false;
+}
+static bool SpellFitsClass(Player* player, uint8 power)
+{
+    if (power == 0) return player->getClass() != CLASS_WARRIOR && player->getClass() != CLASS_ROGUE && player->getClass() != CLASS_DEATH_KNIGHT;
+    if (power == 1) return player->getClass() == CLASS_WARRIOR;
+    if (power == 3) return player->getClass() == CLASS_ROGUE;
+    if (power == 6) return player->getClass() == CLASS_DEATH_KNIGHT;
+    return true;
+}
 static bool TakeGold(Player* player, uint32 gold)
 {
     if (player->GetMoney() < gold * GOLD)
@@ -102,17 +116,32 @@ static bool TakeGold(Player* player, uint32 gold)
     player->ModifyMoney(-int32(gold * GOLD));
     return true;
 }
+static void LearnTrainerRecipes(Player* player, uint32 skill, uint16 maxRank)
+{
+    QueryResult result = WorldDatabase.Query("SELECT DISTINCT SpellID FROM npc_trainer WHERE ReqSkillLine = {} AND ReqSkillRank <= {} AND SpellID > 0", skill, maxRank);
+    if (!result) return;
+    do
+    {
+        uint32 spell = result->Fetch()[0].Get<uint32>();
+        if (!player->HasSpell(spell)) player->learnSpell(spell, false);
+    } while (result->NextRow());
+    QueryResult vendor = WorldDatabase.Query("SELECT DISTINCT item.spellid_1 FROM npc_vendor vendor JOIN item_template item ON item.entry = vendor.item WHERE item.class = 9 AND item.spellid_1 > 0 AND item.RequiredSkill = {} AND item.RequiredSkillRank <= {}", skill, maxRank);
+    if (!vendor) return;
+    do
+    {
+        uint32 spell = vendor->Fetch()[0].Get<uint32>();
+        if (!player->HasSpell(spell)) player->learnSpell(spell, false);
+    } while (vendor->NextRow());
+}
 static void TeachProfession(Player* player, uint32 index, uint8 tier)
 {
     JarvisProf const& prof = profs[index];
     uint32 count = tier == 1 ? 4 : (tier == 2 ? 5 : 6);
-    for (uint32 i = 0; i < count; ++i)
-        player->learnSpell(prof.spells[i], false);
+    for (uint32 i = 0; i < count; ++i) player->learnSpell(prof.spells[i], false);
     player->SetSkill(prof.skill, 1, ProfMax(tier), ProfMax(tier));
-    if (prof.tool)
-        player->AddItem(prof.tool, 1);
-    if (prof.skill == 333)
-        player->AddItem(tier == 1 ? 6218 : (tier == 2 ? 22463 : 44452), 1);
+    if (prof.tool) player->AddItem(prof.tool, 1);
+    if (prof.skill == 333) player->AddItem(tier == 1 ? 6218 : (tier == 2 ? 22463 : 44452), 1);
+    LearnTrainerRecipes(player, prof.skill, ProfMax(tier));
 }
 static void GiveReputation(Player* player, FactionEntry const* entry)
 {
@@ -154,15 +183,13 @@ public:
                 if (seen == action)
                 {
                     CloseGossipMenuFor(player);
-                    if (TakeGold(player, faction.gold))
-                        if (FactionEntry const* entry = sFactionStore.LookupEntry(faction.id))
-                            GiveReputation(player, entry);
+                    if (TakeGold(player, faction.gold)) if (FactionEntry const* entry = sFactionStore.LookupEntry(faction.id)) GiveReputation(player, entry);
                     return true;
                 }
                 ++seen;
             }
         }
-        if (sender == ACT_RACIAL && action < sizeof(racials) / sizeof(racials[0]))
+        if (sender == ACT_RACIAL && action < sizeof(racials) / sizeof(racials[0]) && !KnowsRacial(player, action))
         {
             CloseGossipMenuFor(player);
             if (TakeGold(player, racials[action].gold))
@@ -172,7 +199,7 @@ public:
             }
             return true;
         }
-        if (sender == ACT_SPELLS && action < sizeof(borrowed) / sizeof(borrowed[0]))
+        if (sender == ACT_SPELLS && action < sizeof(borrowed) / sizeof(borrowed[0]) && !player->HasSpell(borrowed[action].id) && SpellFitsClass(player, borrowed[action].power))
         {
             CloseGossipMenuFor(player);
             if (TakeGold(player, borrowed[action].gold)) player->learnSpell(borrowed[action].id, false);
@@ -192,7 +219,7 @@ public:
         if (sender == ACT_PROF && action >= 10)
         {
             uint32 index = action / 10 - 1; uint8 tier = action % 10;
-            if (index < sizeof(profs) / sizeof(profs[0]) && tier >= 1 && tier <= 3)
+            if (index < sizeof(profs) / sizeof(profs[0]) && tier >= 1 && tier <= 3 && player->GetSkillValue(profs[index].skill) < ProfMax(tier))
             {
                 CloseGossipMenuFor(player);
                 if (TakeGold(player, ProfCost(profs[index].scale, tier))) TeachProfession(player, index, tier);
@@ -201,20 +228,20 @@ public:
         }
         if (sender == ACT_HEIRLOOM)
         {
-            uint32 items[6] = {}; uint32 count = 0;
-            auto add = [&](std::initializer_list<uint32> list) { for (uint32 item : list) if (count < 6) items[count++] = item; };
-            if (action == 11) add({ 42949, 48685, 42945, 48716, 42991 });
-            else if (action == 12) add({ 42949, 48685, 42943, 44092, 42991 });
-            else if (action == 21) add({ 42949, 48685, 42945, 44094, 42992 });
-            else if (action == 22) add({ 42949, 48685, 44092, 48718, 42991 });
-            else if (action == 31) add({ 42950, 48677, 42946, 44093, 42991 });
-            else if (action == 41) add({ 42952, 48689, 42944, 44091, 42991 });
-            else if (action == 51) add({ 42985, 48691, 42947, 42948, 42992 });
-            else if (action == 61) add({ 42949, 48685, 42943, 42945, 42991 });
-            else if (action == 71) add({ 42950, 48677, 42948, 44094, 42992 });
-            else if (action == 81) add({ 42985, 48691, 42947, 44095, 42992 });
-            else if (action == 91) add({ 42985, 48691, 42947, 44095, 42992 });
-            else if (action == 111) add({ 42952, 48689, 42947, 48718, 42992 });
+            uint32 items[8] = {}; uint32 count = 0;
+            auto add = [&](std::initializer_list<uint32> list) { for (uint32 item : list) if (count < 8) items[count++] = item; };
+            if (action == 11) add({ 42949, 48685, 42945, 48716, 42991, 42992, 50255 });
+            else if (action == 12) add({ 42949, 48685, 42943, 44092, 42991, 42992, 50255 });
+            else if (action == 21) add({ 42949, 48685, 42945, 44094, 42992, 42991, 50255 });
+            else if (action == 22) add({ 42949, 48685, 44092, 48718, 42991, 42992, 50255 });
+            else if (action == 31) add({ 42950, 48677, 42946, 44093, 42991, 42992, 50255 });
+            else if (action == 41) add({ 42952, 48689, 42944, 44091, 42991, 42992, 50255 });
+            else if (action == 51) add({ 42985, 48691, 42947, 42948, 42992, 42991, 50255 });
+            else if (action == 61) add({ 42949, 48685, 42943, 42945, 42991, 42992, 50255 });
+            else if (action == 71) add({ 42950, 48677, 42948, 44094, 42992, 42991, 50255 });
+            else if (action == 81) add({ 42985, 48691, 42947, 44095, 42992, 42991, 50255 });
+            else if (action == 91) add({ 42985, 48691, 42947, 44095, 42992, 42991, 50255 });
+            else if (action == 111) add({ 42952, 48689, 42947, 48718, 42992, 42991, 50255 });
             if (count) { CloseGossipMenuFor(player); if (TakeGold(player, 1)) for (uint32 i = 0; i < count; ++i) player->AddItem(items[i], 1); return true; }
         }
         ClearGossipMenuFor(player);
@@ -227,7 +254,8 @@ public:
                 if (TakeGold(player, 1)) { Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_ALL, false); Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_ALL, true); }
                 return true;
             case ACT_PROF:
-                for (uint32 i = 0; i < sizeof(profs) / sizeof(profs[0]); ++i) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, GOSSIP_SENDER_MAIN, 200 + i);
+                for (uint32 i = 0; i < sizeof(profs) / sizeof(profs[0]); ++i)
+                    if (player->GetSkillValue(profs[i].skill) < 450) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, GOSSIP_SENDER_MAIN, 200 + i);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_REP:
             {
@@ -242,7 +270,7 @@ public:
             }
             case ACT_RACIAL:
                 for (uint32 i = 0; i < sizeof(racials) / sizeof(racials[0]); ++i)
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(racials[i].name) + " - 200g", ACT_RACIAL, i, "Learn these racials?", 200 * GOLD, false);
+                    if (!KnowsRacial(player, i)) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(racials[i].name) + " - 200g", ACT_RACIAL, i, "Learn these racials?", 200 * GOLD, false);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_TALENT:
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "1 talent point - 100g", ACT_TALENT, 1, "Buy 1 talent point?", 100 * GOLD, false);
@@ -251,7 +279,8 @@ public:
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_SPELLS:
                 for (uint32 i = 0; i < sizeof(borrowed) / sizeof(borrowed[0]); ++i)
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(borrowed[i].name) + " - " + std::to_string(borrowed[i].gold) + "g", ACT_SPELLS, i, "Learn this ability?", borrowed[i].gold * GOLD, false);
+                    if (!player->HasSpell(borrowed[i].id) && SpellFitsClass(player, borrowed[i].power))
+                        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(borrowed[i].name) + " - " + std::to_string(borrowed[i].gold) + "g", ACT_SPELLS, i, "Learn this ability?", borrowed[i].gold * GOLD, false);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_HEIRLOOM:
                 AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "Warrior, one-hand", ACT_HEIRLOOM, 11, "Buy this set for 1 gold?", GOLD, false);
@@ -286,7 +315,8 @@ public:
                 {
                     uint32 index = action - 200;
                     for (uint8 tier = 1; tier <= 3; ++tier)
-                        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(TierName(tier)) + " " + profs[index].name + " - " + std::to_string(ProfCost(profs[index].scale, tier)) + "g", ACT_PROF, (index + 1) * 10 + tier, "Learn this profession tier?", ProfCost(profs[index].scale, tier) * GOLD, false);
+                        if (player->GetSkillValue(profs[index].skill) < ProfMax(tier))
+                            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(TierName(tier)) + " " + profs[index].name + " - " + std::to_string(ProfCost(profs[index].scale, tier)) + "g", ACT_PROF, (index + 1) * 10 + tier, "Learn this profession tier and its trainer recipes?", ProfCost(profs[index].scale, tier) * GOLD, false);
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_PROF); break;
                 }
                 CloseGossipMenuFor(player); return true;
