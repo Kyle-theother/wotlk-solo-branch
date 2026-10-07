@@ -1,8 +1,8 @@
 -- Essence of the Immortals, cloned from a potion and displayed as item 34544.
+-- Roy is cloned from Jeeves so the insert matches the current creature_template columns.
 
 DELETE FROM `npc_vendor` WHERE `item` = 900014;
 DELETE FROM `item_template` WHERE `entry` = 900014;
-DELETE FROM `creature` WHERE `id1` = 900015;
 DELETE FROM `creature_template_model` WHERE `CreatureID` = 900015;
 DELETE FROM `creature_template` WHERE `entry` = 900015;
 
@@ -49,8 +49,18 @@ DROP TEMPORARY TABLE `tmp_essence`;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `VerifiedBuild`) VALUES
 (900010, 30, 900014, 0, 0, 0, 0);
 
-INSERT INTO `creature_template` (`entry`, `name`, `subname`, `minlevel`, `maxlevel`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `unit_class`, `unit_flags`, `type`, `type_flags`, `RegenHealth`, `flags_extra`, `ScriptName`) VALUES
-(900015, 'Roy', 'Totem', 80, 80, 35, 0, 1, 1.14286, 0.6, 0, 1, 33554690, 11, 0, 1, 2, 'npc_roy_totem');
+CREATE TEMPORARY TABLE `tmp_roy` AS SELECT * FROM `creature_template` WHERE `entry` = 35642;
+UPDATE `tmp_roy` SET
+    `entry` = 900015,
+    `name` = 'Roy',
+    `subname` = 'Totem',
+    `faction` = 35,
+    `npcflag` = 0,
+    `unit_flags` = 33554690,
+    `type` = 11,
+    `ScriptName` = 'npc_roy_totem';
+INSERT INTO `creature_template` SELECT * FROM `tmp_roy`;
+DROP TEMPORARY TABLE `tmp_roy`;
 
 INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`) VALUES
 (900015, 0, 29354, 0.6, 1);
