@@ -1,6 +1,7 @@
 -- Jarvis. Entry 900010. Model copied from Jeeves (35642).
+-- This database uses creature.id, not id1.
 
-DELETE FROM `creature` WHERE `id1` = 900010;
+DELETE FROM `creature` WHERE `id` = 900010;
 DELETE FROM `creature_template_model` WHERE `CreatureID` = 900010;
 DELETE FROM `creature_template` WHERE `entry` = 900010;
 
@@ -29,7 +30,7 @@ SELECT 900010, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`
 FROM `creature_template_model`
 WHERE `CreatureID` = 35642;
 
-INSERT INTO `creature` (`id1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `MovementType`) VALUES
+INSERT INTO `creature` (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `MovementType`) VALUES
 (900010, 0, -8832.0, 628.0, 94.0, 0.7, 300, 0, 0),
 (900010, 0, -4920.0, -946.0, 502.0, 5.4, 300, 0, 0),
 (900010, 0, 1632.0, 240.0, -43.0, 6.2, 300, 0, 0),
