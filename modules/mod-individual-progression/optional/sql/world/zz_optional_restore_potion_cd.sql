@@ -1,4 +1,4 @@
-/* This will restore potion cooldown time to 2 minutes like it was during vanilla and TBC */
+/* This will restore potion cooldown time to 2 minutes like it was during vanilla and TBC 
 
 /* classic potions */
 UPDATE `item_template` SET `spellcategorycooldown_1` = 120000 WHERE `entry` IN 
@@ -12,3 +12,4 @@ UPDATE `item_template` SET `spellcategorycooldown_1` = 120000 WHERE `entry` IN
 (22826, 22828, 22829, 22832, 22836, 22837, 22838, 22839, 22841, 22842, 22844, 22845, 22846, 22847, 22849, 22850, 22871, 
 23822, 23823, 28100, 28101, 31676, 31677, 31838, 31839, 31840, 31841, 31852, 31853, 31854, 31855, 
 32783, 32784, 32840, 32844, 32845, 32846, 32847, 32902, 32903, 32904, 32905, 32909, 32910, 32947, 32948);
+*/
