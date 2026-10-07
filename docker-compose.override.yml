@@ -9,6 +9,7 @@
 # NoProfessionLimit raises the primary profession cap to all 11.
 # AccountBound shares achievements, mounts, pets, titles, and reputation across the account.
 # StarterGear.Enable lets a character use .startergear once.
+# DungeonQuests.Enable adds the dungeon quest guide and the accept-all option.
 services:
   ac-worldserver:
     environment:
@@ -28,3 +29,5 @@ services:
       AC_NO_PROFESSION_LIMIT_MAX_PRIMARY_PROFESSIONS: "11"
       AC_ACCOUNT_BOUND_ENABLE: "1"
       AC_STARTER_GEAR_ENABLE: "1"
+      AC_DUNGEON_QUESTS_ENABLE: "1"
+      AC_DUNGEON_QUESTS_ENABLE_ACCEPT_ALL: "1"
