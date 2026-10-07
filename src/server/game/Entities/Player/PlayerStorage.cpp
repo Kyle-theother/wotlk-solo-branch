@@ -2337,6 +2337,17 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                         allowEquip = (itemSkill == SKILL_MAIL);
                     }
                 }
+                switch (pProto->Class)
+                {
+                    case ITEM_CLASS_WEAPON:
+                        if (pProto->SubClass & GetWeaponProficiency())
+                            allowEquip = true;
+                        break;
+                    case ITEM_CLASS_ARMOR:
+                        if (pProto->SubClass & GetArmorProficiency())
+                            allowEquip = true;
+                        break;
+                }
                 if (!allowEquip && GetSkillValue(itemSkill) == 0)
                     return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
             }
