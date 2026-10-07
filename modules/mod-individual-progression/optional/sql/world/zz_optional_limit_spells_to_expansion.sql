@@ -2,7 +2,7 @@
     This optional file sets the required level to train certain class spells to the expansion they were introduced in
     Level 61/71 is required to prevent the spell from being available too early.
     This does not effect RNDbots, they don't learn their spells from trainers.
-*/
+
 
 -- Warrior
 UPDATE `trainer_spell` SET `ReqLevel` = 62 WHERE `TrainerId` = 1 AND `SpellId` = 34428;  -- Victory Rush, level 6 -> 62
@@ -57,3 +57,6 @@ DELETE FROM `character_spell` WHERE `spell` = 51722 AND `guid` IN (SELECT `guid`
 DELETE FROM `character_spell` WHERE `spell` = 36936 AND `guid` IN (SELECT `guid` FROM `characters` WHERE `class` = 7 AND `level` < 61);
 DELETE FROM `character_spell` WHERE `spell` IN (24398, 33736, 52127, 52129, 52131, 52134, 52136, 52138, 57994, 66842, 66843, 66844) AND `guid` IN (SELECT `guid` FROM `characters` WHERE `class` = 7 AND `level` < 71);
 DELETE FROM `character_spell` WHERE `spell` IN (50764, 50765, 50766, 50767, 50768, 50769, 62600) AND `guid` IN (SELECT `guid` FROM `characters` WHERE `class` = 11 AND `level` < 71);
+
+
+*/
