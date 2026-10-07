@@ -2,8 +2,8 @@
 # PlayerStart.CustomSpells lets off-race classes receive their starter spells.
 # MinLevelForHeroicCharacter 0 removes the level 55 account requirement for Death Knights.
 # ModWarEffort.Enable turns on the Gates of Ahn'Qiraj war effort.
-# EnablePlayerSettings is required by mod-individual-progression (original Naxxramas).
-# DBC.EnforceItemAttributes 0 lets that module restore vanilla item stats.
+# IndividualProgression.Enable 0 stops zone, raid, and level locks.
+# Restored vanilla quests and old Naxxramas stay in the database.
 services:
   ac-worldserver:
     environment:
@@ -12,3 +12,4 @@ services:
       AC_MOD_WAR_EFFORT_ENABLE: "1"
       AC_ENABLE_PLAYER_SETTINGS: "1"
       AC_DBC_ENFORCE_ITEM_ATTRIBUTES: "0"
+      AC_INDIVIDUAL_PROGRESSION_ENABLE: "0"
