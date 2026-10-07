@@ -1,5 +1,5 @@
--- Essence of the Immortals, cloned from a potion and displayed as item 34544.
--- The summoned totem is Jarvis, cloned from Jeeves.
+-- Essence of the Immortals. Display falls back to the potion icon if item 34544 has no row.
+-- The summoned totem is Jarvis, cloned the same way as the city Jarvis.
 
 DELETE FROM `npc_vendor` WHERE `item` = 900014;
 DELETE FROM `item_template` WHERE `entry` = 900014;
@@ -17,7 +17,6 @@ UPDATE `tmp_essence` SET
     `class` = 0,
     `subclass` = 1,
     `InventoryType` = 0,
-    `displayid` = (SELECT `displayid` FROM `item_template` WHERE `entry` = 34544),
     `ItemLevel` = 80,
     `RequiredLevel` = 1,
     `stackable` = 20,
@@ -46,6 +45,11 @@ UPDATE `tmp_essence` SET
 INSERT INTO `item_template` SELECT * FROM `tmp_essence`;
 DROP TEMPORARY TABLE `tmp_essence`;
 
+UPDATE `item_template` AS `target`
+JOIN `item_template` AS `source` ON `source`.`entry` = 34544
+SET `target`.`displayid` = `source`.`displayid`
+WHERE `target`.`entry` = 900014;
+
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `VerifiedBuild`) VALUES
 (900010, 30, 900014, 0, 0, 0, 0);
 
@@ -54,13 +58,16 @@ UPDATE `tmp_jarvis_totem` SET
     `entry` = 900015,
     `name` = 'Jarvis',
     `subname` = 'Totem',
+    `minlevel` = 80,
+    `maxlevel` = 80,
     `faction` = 35,
     `npcflag` = 0,
-    `unit_flags` = 33554690,
-    `type` = 11,
+    `unit_flags` = 768,
     `ScriptName` = 'npc_jarvis_totem';
 INSERT INTO `creature_template` SELECT * FROM `tmp_jarvis_totem`;
 DROP TEMPORARY TABLE `tmp_jarvis_totem`;
 
-INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`) VALUES
-(900015, 0, 29354, 0.6, 1);
+INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`, `DisplayScale`, `Probability`)
+SELECT 900015, `Idx`, `CreatureDisplayID`, 0.6, `Probability`
+FROM `creature_template_model`
+WHERE `CreatureID` = 35642;
