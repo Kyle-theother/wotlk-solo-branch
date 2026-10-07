@@ -15,6 +15,7 @@
 # StartPlayerMoney is copper. 10000 is 1 gold.
 # SoloLFG lets the dungeon finder queue with fewer than 5 players. FixedXP stays off.
 # Faction-Free DBC files replace the stock faction and achievement tables.
+# ALE loads lua_scripts on worldserver start.
 services:
   ac-worldserver:
     environment:
@@ -57,7 +58,10 @@ services:
       AC_START_HEROIC_PLAYER_MONEY: "10000"
       AC_SOLO_LFG_ENABLE: "1"
       AC_SOLO_LFG_FIXED_XP: "0"
+      AC_ALE_ENABLED: "1"
+      AC_ALE_SCRIPT_PATH: "lua_scripts"
     volumes:
       - ./modules/mod-Faction-Free/dbc/Achievement.dbc:/azerothcore/env/dist/data/dbc/Achievement.dbc:ro
       - ./modules/mod-Faction-Free/dbc/Faction.dbc:/azerothcore/env/dist/data/dbc/Faction.dbc:ro
       - ./modules/mod-Faction-Free/dbc/FactionTemplate.dbc:/azerothcore/env/dist/data/dbc/FactionTemplate.dbc:ro
+      - ./lua_scripts:/azerothcore/env/dist/lua_scripts:ro
