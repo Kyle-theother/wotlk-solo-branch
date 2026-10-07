@@ -6,6 +6,7 @@
 # Logout.LogoutDelay is milliseconds. 5000 is a 5 second logout.
 # Rate.Corpse.Decay.Looted is required by mod-aoe-loot so looted corpses disappear quickly.
 # DungeonRespawn.Enable sends a dead player back to the dungeon entrance.
+# NoProfessionLimit raises the primary profession cap to all 11.
 services:
   ac-worldserver:
     environment:
@@ -21,3 +22,5 @@ services:
       AC_AOE_LOOT_RANGE: "55.0"
       AC_DUNGEON_RESPAWN_ENABLE: "1"
       AC_DUNGEON_RESPAWN_RESPAWN_HEALTH_PCT: "100.0"
+      AC_NO_PROFESSION_LIMIT_ENABLE: "1"
+      AC_NO_PROFESSION_LIMIT_MAX_PRIMARY_PROFESSIONS: "11"
