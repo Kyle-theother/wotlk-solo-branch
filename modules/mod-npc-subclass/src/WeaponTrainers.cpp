@@ -29,7 +29,11 @@ static WeaponSkill const weaponSkills[] =
     { 0, 176, "Thrown" },
     { 3018, 45, "Bow" },
     { 3018, 226, "Crossbow" },
-    { 3018, 46, "Gun" }
+    { 3018, 46, "Gun" },
+    { 9077, 414, "Leather" },
+    { 8737, 413, "Mail" },
+    { 750, 293, "Plate" },
+    { 9116, 433, "Shield" }
 };
 
 static uint32 SkillForSpell(uint32 spellId)
@@ -51,6 +55,10 @@ static uint32 SkillForSpell(uint32 spellId)
         case 264: return 45;
         case 5011: return 226;
         case 266: return 46;
+        case 9077: return 414;
+        case 8737: return 413;
+        case 750: return 293;
+        case 9116: return 433;
         default: return 0;
     }
 }
