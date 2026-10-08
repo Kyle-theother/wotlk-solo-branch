@@ -89,32 +89,6 @@ static void LearnProficiency(Player* player, uint32 spellId, uint16 skillId)
 }
 
 
-SubClass_NPC::Proficiency const SubClass_NPC::profs[] =
-{
-    { 9077, 414, 0, "Leather", true },
-    { 8737, 413, 0, "Mail", true },
-    { 750, 293, 0, "Plate", true },
-    { 9116, 433, 107, "Shield", true },
-    { 674, 0, 0, "Dual Wield", false },
-    { 196, 44, 0, "1H Axe", false },
-    { 197, 172, 0, "2H Axe", false },
-    { 201, 43, 0, "1H Sword", false },
-    { 202, 55, 0, "2H Sword", false },
-    { 198, 54, 0, "1H Mace", false },
-    { 199, 160, 0, "2H Mace", false },
-    { 200, 229, 0, "Polearm", false },
-    { 1180, 173, 0, "Dagger", false },
-    { 15590, 473, 0, "Fist", false },
-    { 227, 136, 0, "Staff", false },
-    { 5009, 228, 5019, "Wand", false },
-    { 2567, 176, 0, "Thrown", false },
-    { 2764, 0, 0, "Throw", false },
-    { 264, 45, 3018, "Bow", false },
-    { 5011, 226, 3018, "Crossbow", false },
-    { 266, 46, 3018, "Gun", false },
-    { 0, 0, 0, "", false }
-};
-
 class SubClass_NPC : public CreatureScript
 {
 
@@ -265,6 +239,33 @@ public:
         return new NPC_PassiveAI(creature);
     }
 };
+
+SubClass_NPC::Proficiency const SubClass_NPC::profs[] =
+{
+    { 9077, 414, 0, "Leather", true },
+    { 8737, 413, 0, "Mail", true },
+    { 750, 293, 0, "Plate", true },
+    { 9116, 433, 107, "Shield", true },
+    { 674, 0, 0, "Dual Wield", false },
+    { 196, 44, 0, "1H Axe", false },
+    { 197, 172, 0, "2H Axe", false },
+    { 201, 43, 0, "1H Sword", false },
+    { 202, 55, 0, "2H Sword", false },
+    { 198, 54, 0, "1H Mace", false },
+    { 199, 160, 0, "2H Mace", false },
+    { 200, 229, 0, "Polearm", false },
+    { 1180, 173, 0, "Dagger", false },
+    { 15590, 473, 0, "Fist", false },
+    { 227, 136, 0, "Staff", false },
+    { 5009, 228, 5019, "Wand", false },
+    { 2567, 176, 0, "Thrown", false },
+    { 2764, 0, 0, "Throw", false },
+    { 264, 45, 3018, "Bow", false },
+    { 5011, 226, 3018, "Crossbow", false },
+    { 266, 46, 3018, "Gun", false },
+    { 0, 0, 0, "", false }
+};
+
 
 void AddSubClassNPCScripts()
 {
