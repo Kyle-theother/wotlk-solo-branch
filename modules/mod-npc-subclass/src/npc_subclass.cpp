@@ -86,10 +86,14 @@ public:
 
     SubClass_NPC() : CreatureScript("S    bool OnGossipHello(Player* player, Creature* creature)
     {
+        bool offered = false;
         auto offer = [&](uint32 spellId, std::string const& text, uint32 action)
         {
             if (!player->HasSpell(spellId))
+            {
                 AddGossipItemFor(player, 10, text, GOSSIP_SENDER_MAIN, action);
+                offered = true;
+            }
         };
 
         offer(9077, "|TInterface\\icons\\inv_chest_leather_09:40:40:-18|t Leather Armor [20 Silvers]", GOSSIP_ACTION_INFO_DEF + 1);
@@ -114,7 +118,7 @@ public:
         offer(5011, "|TInterface\\icons\\inv_weapon_crossbow_01:40:40:-18|t Crossbow [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 20);
         offer(266, "|TInterface\\icons\\inv_weapon_rifle_01:40:40:-18|t Gun [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 21);
 
-        if (player->PlayerTalkClass->GetGossipMenu().Empty())
+        if (!offered)
         {
             ChatHandler(player->GetSession()).SendSysMessage("You already know every proficiency this trainer sells.");
             player->PlayerTalkClass->SendCloseGossip();
