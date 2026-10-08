@@ -3,6 +3,7 @@
 #include "ItemScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "AllSpellScript.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "UnitScript.h"
@@ -61,19 +62,17 @@ class spell_aura_instant_cast : public AuraScript
     }
 };
 
-class spell_instant_cast_time : public SpellScript
+class instant_cast_time : public AllSpellScript
 {
-    PrepareSpellScript(spell_instant_cast_time);
+public:
+    instant_cast_time() : AllSpellScript("instant_cast_time") { }
 
-    void HandleCastTime(int32& castTime)
+    void OnSpellPrepare(Spell* spell, Unit* caster, SpellInfo const* spellInfo) override
     {
-        if (HasInstantCast(GetCaster()))
-            castTime = 0;
-    }
-
-    void Register() override
-    {
-        OnCalcCastTime += SpellCalcCastTimeFn(spell_instant_cast_time::HandleCastTime);
+        if (!spell || !HasInstantCast(caster) || !spellInfo || spellInfo->Id == SPELL_AURA)
+            return;
+        spell->m_casttime = 0;
+        spell->m_timer = 0;
     }
 };
 
@@ -88,7 +87,7 @@ public:
             damage /= 2;
     }
 
-    void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* attacker, uint32& damage) override
+    void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* attacker, uint32& damage, SpellInfo const* /*spellInfo*/) override
     {
         if (HasInstantCast(attacker))
             damage /= 2;
@@ -106,5 +105,5 @@ void AddJarvisInstantCastScripts()
     new item_instant_cast_scroll();
     new instant_cast_effect();
     RegisterSpellScript(spell_aura_instant_cast);
-    RegisterSpellScript(spell_instant_cast_time);
+    new instant_cast_time();
 }
