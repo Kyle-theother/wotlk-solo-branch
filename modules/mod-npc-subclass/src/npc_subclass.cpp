@@ -43,6 +43,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include <string>
 
 bool SubClassAnnounceModule;
 bool SubClassEnableAI;
@@ -83,31 +84,44 @@ class SubClass_NPC : public CreatureScript
 
 public:
 
-    SubClass_NPC() : CreatureScript("SubClass_NPC") {}
-
-    bool OnGossipHello(Player* player, Creature* creature)
+    SubClass_NPC() : CreatureScript("S    bool OnGossipHello(Player* player, Creature* creature)
     {
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_chest_leather_09:40:40:-18|t Leather Armor [20 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_chest_chain_05:40:40:-18|t Mail Armor [2 Golds]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_chest_plate01:40:40:-18|t Plate Armor [3 Golds]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_shield_04:40:40:-18|t Shield Wielding [30 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\ability_dualwield:40:40:-18|t Dual Wielding [1 Gold]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_axe_01:40:40:-18|t 1H Axe [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_axe_04:40:40:-18|t 2H Axe [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\ability_meleedamage:40:40:-18|t 1H Sword [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\ability_meleedamage:40:40:-18|t 2H Sword [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_mace_01:40:40:-18|t 1H Mace [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_mace_04:40:40:-18|t 2H Mace [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_spear_06:40:40:-18|t Polearm [1 Gold]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\ability_steelmelee:40:40:-18|t Dagger [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_gauntlets_04:40:40:-18|t Fist Weapon [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_staff_08:40:40:-18|t Stave [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\ability_shootwand:40:40:-18|t Wand [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_throwingknife_02:40:40:-18|t Thrown Weapon [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\ability_throw:40:40:-18|t Throw [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_weapon_bow_05:40:40:-18|t Bow [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_weapon_crossbow_01:40:40:-18|t Crossbow [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
-        AddGossipItemFor(player, 10, "|TInterface\\icons\\inv_weapon_rifle_01:40:40:-18|t Gun [10 Silvers]", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
+        auto offer = [&](uint32 spellId, std::string const& text, uint32 action)
+        {
+            if (!player->HasSpell(spellId))
+                AddGossipItemFor(player, 10, text, GOSSIP_SENDER_MAIN, action);
+        };
+
+        offer(9077, "|TInterface\\icons\\inv_chest_leather_09:40:40:-18|t Leather Armor [20 Silvers]", GOSSIP_ACTION_INFO_DEF + 1);
+        offer(8737, "|TInterface\\icons\\inv_chest_chain_05:40:40:-18|t Mail Armor [2 Golds]", GOSSIP_ACTION_INFO_DEF + 2);
+        offer(750, "|TInterface\\icons\\inv_chest_plate01:40:40:-18|t Plate Armor [3 Golds]", GOSSIP_ACTION_INFO_DEF + 3);
+        offer(9116, "|TInterface\\icons\\inv_shield_04:40:40:-18|t Shield Wielding [30 Silvers]", GOSSIP_ACTION_INFO_DEF + 4);
+        offer(674, "|TInterface\\icons\\ability_dualwield:40:40:-18|t Dual Wielding [1 Gold]", GOSSIP_ACTION_INFO_DEF + 5);
+        offer(196, "|TInterface\\icons\\inv_axe_01:40:40:-18|t 1H Axe [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 6);
+        offer(197, "|TInterface\\icons\\inv_axe_04:40:40:-18|t 2H Axe [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 7);
+        offer(201, "|TInterface\\icons\\ability_meleedamage:40:40:-18|t 1H Sword [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 8);
+        offer(202, "|TInterface\\icons\\ability_meleedamage:40:40:-18|t 2H Sword [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 9);
+        offer(198, "|TInterface\\icons\\inv_mace_01:40:40:-18|t 1H Mace [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 10);
+        offer(199, "|TInterface\\icons\\inv_mace_04:40:40:-18|t 2H Mace [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 11);
+        offer(200, "|TInterface\\icons\\inv_spear_06:40:40:-18|t Polearm [1 Gold]", GOSSIP_ACTION_INFO_DEF + 12);
+        offer(1180, "|TInterface\\icons\\ability_steelmelee:40:40:-18|t Dagger [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 13);
+        offer(15590, "|TInterface\\icons\\inv_gauntlets_04:40:40:-18|t Fist Weapon [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 14);
+        offer(227, "|TInterface\\icons\\inv_staff_08:40:40:-18|t Stave [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 15);
+        offer(5009, "|TInterface\\icons\\ability_shootwand:40:40:-18|t Wand [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 16);
+        offer(2567, "|TInterface\\icons\\inv_throwingknife_02:40:40:-18|t Thrown Weapon [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 17);
+        offer(2764, "|TInterface\\icons\\ability_throw:40:40:-18|t Throw [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 18);
+        offer(264, "|TInterface\\icons\\inv_weapon_bow_05:40:40:-18|t Bow [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 19);
+        offer(5011, "|TInterface\\icons\\inv_weapon_crossbow_01:40:40:-18|t Crossbow [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 20);
+        offer(266, "|TInterface\\icons\\inv_weapon_rifle_01:40:40:-18|t Gun [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 21);
+
+        if (player->PlayerTalkClass->GetGossipMenu().Empty())
+        {
+            ChatHandler(player->GetSession()).SendSysMessage("You already know every proficiency this trainer sells.");
+            player->PlayerTalkClass->SendCloseGossip();
+            return true;
+        }
+
+_INFO_DEF + 21);
 
         SendGossipMenuFor(player, 600001, creature->GetGUID());
         return true;
