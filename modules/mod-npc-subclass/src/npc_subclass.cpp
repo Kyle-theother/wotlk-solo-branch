@@ -85,7 +85,7 @@ static void LearnProficiency(Player* player, uint32 spellId, uint16 skillId)
     if (!player->HasSpell(spellId))
         player->learnSpell(spellId, false);
     if (skillId && player->GetSkillValue(skillId) == 0)
-        player->SetSkill(skillId, 0, 1, 1);
+        player->SetSkill(skillId, 1, 1, 1);
 }
 
 
@@ -139,8 +139,14 @@ public:
         uint32 shown = 0;
         for (uint32 i = 0; profs[i].spellId; ++i)
         {
-            if (profs[i].armor != armor || player->HasSpell(profs[i].spellId))
+            if (profs[i].armor != armor)
                 continue;
+            if (player->HasSpell(profs[i].spellId))
+            {
+                if (profs[i].skillId && player->GetSkillValue(profs[i].skillId) == 0)
+                    player->SetSkill(profs[i].skillId, 1, 1, 1);
+                continue;
+            }
             AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, armor ? 10 : 11, i);
             ++shown;
         }
