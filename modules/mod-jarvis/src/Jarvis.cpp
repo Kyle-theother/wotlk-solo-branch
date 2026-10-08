@@ -314,6 +314,21 @@ static void TeachProfession(Player* player, uint32 index, uint8 tier)
     if (prof.skill == 333) player->AddItem(tier == 1 ? 6218 : (tier == 2 ? 22463 : 44452), 1);
     LearnTrainerRecipes(player, prof.skill, ProfMax(tier));
 }
+static void SetOppositeFactionAtWar(Player* player, bool atWar)
+{
+    uint32 ids[] = { 67, 76, 81, 68, 911, 530, 469, 72, 47, 69, 930, 54 };
+    uint32 start = player->GetTeamId() == TEAM_ALLIANCE ? 0 : 6;
+    ReputationMgr& mgr = player->GetReputationMgr();
+    for (uint32 i = start; i < start + 6; ++i)
+    {
+        if (FactionEntry const* entry = sFactionStore.LookupEntry(ids[i]))
+        {
+            mgr.SetOneFactionReputation(entry, atWar ? -42000 : 0, false);
+            mgr.SetAtWar(ids[i], atWar);
+        }
+    }
+    mgr.SendInitialReputations();
+}
 static void GiveReputation(Player* player, FactionEntry const* entry)
 {
     ReputationMgr& mgr = player->GetReputationMgr();
@@ -370,6 +385,13 @@ public:
         if (sender == ACT_GEAR)
         {
             for (uint8 level : gearLevels) if (level == action) { CloseGossipMenuFor(player); if (TakeCopper(player, GearCost(level))) GiveLevelGreens(player, level); return true; }
+        }
+        if (sender == ACT_REP && (action == 50 || action == 51))
+        {
+            CloseGossipMenuFor(player);
+            SetOppositeFactionAtWar(player, action == 50);
+            ChatHandler(player->GetSession()).SendSysMessage(action == 50 ? "The opposite faction is now at war." : "The opposite faction is no longer at war.");
+            return true;
         }
         if (sender == ACT_REP)
         {
@@ -456,6 +478,8 @@ public:
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_REP:
             {
+                AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Set the opposite faction at war", ACT_REP, 50);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Clear opposite faction at war", ACT_REP, 51);
                 uint8 team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2; uint32 shown = 0;
                 for (JarvisFaction const& faction : factions)
                 {
