@@ -3,6 +3,7 @@ void AddJarvisItemScripts();
 void AddJarvisXpScripts();
 void AddJarvisKeyScripts();
 void AddJarvisInstantCastScripts();
+void AddJarvisAtWarScripts();
 
 void Addmod_jarvisScripts()
 {
@@ -11,4 +12,5 @@ void Addmod_jarvisScripts()
     AddJarvisXpScripts();
     AddJarvisKeyScripts();
     AddJarvisInstantCastScripts();
+    AddJarvisAtWarScripts();
 }
