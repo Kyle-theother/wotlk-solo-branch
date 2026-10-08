@@ -114,11 +114,11 @@ public:
     {
         ClearGossipMenuFor(player);
         uint32 shown = 0;
-        for (uint32 i = 0; profs[i].spellId; ++i)
+        for (uint32 i = 0; profs[i].spellId || profs[i].skillId; ++i)
         {
             if (profs[i].armor != armor)
                 continue;
-            bool known = player->HasSpell(profs[i].spellId) && (!profs[i].skillId || player->GetSkillValue(profs[i].skillId) > 0);
+            bool known = profs[i].skillId ? player->GetSkillValue(profs[i].skillId) > 0 : player->HasSpell(profs[i].spellId);
             if (known)
                 continue;
             AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(profs[i].name) + " - 1c", GOSSIP_SENDER_MAIN, 100 + i, "Learn this proficiency for 1 copper?", 1, false);
@@ -156,7 +156,7 @@ public:
         if (action >= 100 && action < 130)
         {
             Proficiency const& prof = profs[action - 100];
-            if (!prof.spellId)
+            if (!prof.spellId && !prof.skillId)
             {
                 CloseGossipMenuFor(player);
                 return true;
@@ -256,17 +256,17 @@ SubClass_NPC::Proficiency const SubClass_NPC::profs[] =
     { 750, 293, 0, "Plate", true },
     { 9116, 433, 107, "Shield", true },
     { 674, 0, 0, "Dual Wield", false },
-    { 196, 44, 0, "1H Axe", false },
-    { 197, 172, 0, "2H Axe", false },
-    { 201, 43, 0, "1H Sword", false },
+    { 0, 44, 0, "1H Axe", false },
+    { 0, 172, 0, "2H Axe", false },
+    { 0, 43, 0, "1H Sword", false },
     { 202, 55, 0, "2H Sword", false },
     { 198, 54, 0, "1H Mace", false },
     { 199, 160, 0, "2H Mace", false },
     { 200, 229, 0, "Polearm", false },
-    { 1180, 173, 0, "Dagger", false },
+    { 0, 173, 0, "Dagger", false },
     { 15590, 473, 0, "Fist", false },
     { 227, 136, 0, "Staff", false },
-    { 5009, 228, 5019, "Wand", false },
+    { 0, 228, 5019, "Wand", false },
     { 2567, 176, 0, "Thrown", false },
     { 2764, 0, 0, "Throw", false },
     { 264, 45, 3018, "Bow", false },
