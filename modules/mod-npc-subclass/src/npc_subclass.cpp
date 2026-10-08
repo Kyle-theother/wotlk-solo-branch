@@ -84,7 +84,9 @@ class SubClass_NPC : public CreatureScript
 
 public:
 
-    SubClass_NPC() : CreatureScript("S    bool OnGossipHello(Player* player, Creature* creature)
+    SubClass_NPC() : CreatureScript("SubClass_NPC") {}
+
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         bool offered = false;
         auto offer = [&](uint32 spellId, std::string const& text, uint32 action)
@@ -125,7 +127,6 @@ public:
             return true;
         }
 
-_INFO_DEF + 21);
 
         SendGossipMenuFor(player, 600001, creature->GetGUID());
         return true;
