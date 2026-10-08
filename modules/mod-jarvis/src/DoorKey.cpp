@@ -17,7 +17,7 @@ public:
         std::list<GameObject*> doors;
         Acore::GameObjectInRangeCheck check(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 12.0f);
         Acore::GameObjectListSearcher<Acore::GameObjectInRangeCheck> searcher(player, doors, check);
-        Cell::VisitGridObjects(player, searcher, 12.0f);
+        Cell::VisitObjects(player, searcher, 12.0f);
 
         uint32 opened = 0;
         for (GameObject* door : doors)
