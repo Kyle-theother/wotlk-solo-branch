@@ -285,6 +285,25 @@ static void LearnTrainerRecipes(Player* player, uint32 skill, uint16 maxRank)
     if (QueryResult vendor = WorldDatabase.Query("SELECT DISTINCT item.spellid_1 FROM npc_vendor vendor JOIN item_template item ON item.entry = vendor.item WHERE item.class = 9 AND item.spellid_1 > 0 AND item.RequiredSkill = {} AND item.RequiredSkillRank <= {}", skill, maxRank))
         do { uint32 spell = vendor->Fetch()[0].Get<uint32>(); if (!player->HasSpell(spell)) player->learnSpell(spell, false); } while (vendor->NextRow());
 }
+static void TeachAllProfessionsAtOne(Player* player)
+{
+    for (JarvisProf const& prof : profs)
+    {
+        if (prof.spells[0])
+            player->learnSpell(prof.spells[0], false);
+        if (player->GetSkillValue(prof.skill) == 0)
+            player->SetSkill(prof.skill, 1, 1, 450);
+        if (prof.tool)
+            player->AddItem(prof.tool, 1);
+        if (prof.skill == 333)
+        {
+            player->AddItem(6218, 1);
+            player->AddItem(22463, 1);
+            player->AddItem(44452, 1);
+        }
+        LearnTrainerRecipes(player, prof.skill, 450);
+    }
+}
 static void TeachProfession(Player* player, uint32 index, uint8 tier)
 {
     JarvisProf const& prof = profs[index];
@@ -380,6 +399,16 @@ public:
             if (TakeGold(player, action * 100)) { player->RewardExtraBonusTalentPoints(action); player->SetFreeTalentPoints(player->GetFreeTalentPoints() + action); player->SendTalentsInfoData(false); }
             return true;
         }
+        if (sender == ACT_PROF && action == 1)
+        {
+            CloseGossipMenuFor(player);
+            if (TakeGold(player, 1))
+            {
+                TeachAllProfessionsAtOne(player);
+                ChatHandler(player->GetSession()).SendSysMessage("All professions are at skill 1, with trainer recipes and tools.");
+            }
+            return true;
+        }
         if (sender == ACT_PROF && action >= 10)
         {
             uint32 index = action / 10 - 1; uint8 tier = action % 10;
@@ -422,6 +451,7 @@ public:
                 for (uint8 level : gearLevels) AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "Level " + std::to_string(level) + " greens - " + GearPrice(level), ACT_GEAR, level, "Buy this green set?", GearCost(level), false);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_PROF:
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "All professions at skill 1, recipes, and tools - 1g", ACT_PROF, 1, "Learn every profession at skill 1, all trainer recipes, and the tools?", GOLD, false);
                 for (uint32 i = 0; i < sizeof(profs) / sizeof(profs[0]); ++i) if (player->GetSkillValue(profs[i].skill) < 450) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, GOSSIP_SENDER_MAIN, 200 + i);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_REP:
