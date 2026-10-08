@@ -89,6 +89,17 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         bool offered = false;
+        auto clearRank = [&](uint32 spellId, uint16 skillId)
+        {
+            if (player->HasSpell(spellId))
+                player->SetSkill(skillId, 0, 0, 0);
+        };
+        clearRank(9077, 414); clearRank(8737, 413); clearRank(750, 293); clearRank(9116, 433);
+        clearRank(196, 44); clearRank(197, 172); clearRank(201, 43); clearRank(202, 55);
+        clearRank(198, 54); clearRank(199, 160); clearRank(200, 229); clearRank(1180, 173);
+        clearRank(15590, 473); clearRank(227, 136); clearRank(5009, 228); clearRank(2567, 176);
+        clearRank(264, 45); clearRank(5011, 226); clearRank(266, 46);
+
         auto offer = [&](uint32 spellId, std::string const& text, uint32 action)
         {
             if (!player->HasSpell(spellId))
@@ -153,7 +164,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(414, 0, 1, 1);  // Leather Armor Skill
+                        player->SetSkill(414, 0, 0, 0);  // Leather Armor Skill
 
                         // Learn Spells
                         player->learnSpell(9077);   // Leather
@@ -183,7 +194,7 @@ public:
                     if (player->HasEnoughMoney(1))
                         {
                             // Set Skills
-                            player->SetSkill(413, 0, 1, 1);  // Mail Armor Skill
+                            player->SetSkill(413, 0, 0, 0);  // Mail Armor Skill
 
                             // Learn Spells
                             player->learnSpell(8737);   // Mail
@@ -213,7 +224,7 @@ public:
                     if (player->HasEnoughMoney(1))
                         {
                             // Set Skills
-                            player->SetSkill(293, 0, 1, 1);  // Plate Armor Skill
+                            player->SetSkill(293, 0, 0, 0);  // Plate Armor Skill
 
                             // Learn Spells
                             player->learnSpell(750);   // Plate
@@ -243,7 +254,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(433, 0, 1, 1);  // Shield Armor Skill
+                        player->SetSkill(433, 0, 0, 0);  // Shield Armor Skill
 
                         // Learn Spells
                         player->learnSpell(9116);   // Shield
@@ -301,7 +312,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(44, 0, 1, 1);   // One-Handed Axe
+                        player->SetSkill(44, 0, 0, 0);   // One-Handed Axe
 
                         // Learn Spells
                         player->learnSpell(196);   // Axe
@@ -331,7 +342,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(172, 0, 1, 1);   // Two-Handed Axe
+                        player->SetSkill(172, 0, 0, 0);   // Two-Handed Axe
 
                         // Learn Spells
                         player->learnSpell(197);   // Two-Handed Axe
@@ -361,7 +372,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(43, 0, 1, 1);   // One-Handed Sword
+                        player->SetSkill(43, 0, 0, 0);   // One-Handed Sword
 
                         // Learn Spells
                         player->learnSpell(201);   // One-Handed Sword
@@ -391,7 +402,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(55, 0, 1, 1);   // Two-Handed Sword
+                        player->SetSkill(55, 0, 0, 0);   // Two-Handed Sword
 
                         // Learn Spells
                         player->learnSpell(202);   // Two-Handed Sword
@@ -421,7 +432,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(54, 0, 1, 1);   // One-Handed Mace
+                        player->SetSkill(54, 0, 0, 0);   // One-Handed Mace
 
                         // Learn Spells
                         player->learnSpell(198);   // One-Handed Mace
@@ -451,7 +462,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(160, 0, 1, 1);   // Two-Handed Mace
+                        player->SetSkill(160, 0, 0, 0);   // Two-Handed Mace
 
                         // Learn Spells
                         player->learnSpell(199);   // Two-Handed Mace
@@ -481,7 +492,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(229, 0, 1, 1);   // Polearm
+                        player->SetSkill(229, 0, 0, 0);   // Polearm
 
                         // Learn Spells
                         player->learnSpell(200);   // Polearm
@@ -511,7 +522,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(173, 0, 1, 1);   // Dagger
+                        player->SetSkill(173, 0, 0, 0);   // Dagger
 
                         // Learn Spells
                         player->learnSpell(1180);   // Dagger
@@ -541,7 +552,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(473, 0, 1, 1);   // Fist Weapon
+                        player->SetSkill(473, 0, 0, 0);   // Fist Weapon
 
                         // Learn Spells
                         player->learnSpell(15590);   // Fist Weapon
@@ -571,7 +582,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(136, 0, 1, 1);   // Stave
+                        player->SetSkill(136, 0, 0, 0);   // Stave
 
                         // Learn Spells
                         player->learnSpell(227);   // Stave
@@ -601,7 +612,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(228, 0, 1, 1);   // Wand
+                        player->SetSkill(228, 0, 0, 0);   // Wand
 
                         // Learn Spells
                         player->learnSpell(5009);   // Wand
@@ -632,7 +643,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(176, 0, 1, 1);   // Thrown Weapon
+                        player->SetSkill(176, 0, 0, 0);   // Thrown Weapon
 
                         // Learn Spells
                         player->learnSpell(2567);   // Thrown Weapon
@@ -689,7 +700,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(45, 0, 1, 1);   // Bow
+                        player->SetSkill(45, 0, 0, 0);   // Bow
 
                         // Learn Spells
                         player->learnSpell(264);    // Bow
@@ -720,7 +731,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(226, 0, 1, 1);   // Crossbow
+                        player->SetSkill(226, 0, 0, 0);   // Crossbow
 
                         // Learn Spells
                         player->learnSpell(5011);   // Crossbow
@@ -751,7 +762,7 @@ public:
                     if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
-                        player->SetSkill(46, 0, 1, 1);   // Gun
+                        player->SetSkill(46, 0, 0, 0);   // Gun
 
                         // Learn Spells
                         player->learnSpell(266);   // Gun
