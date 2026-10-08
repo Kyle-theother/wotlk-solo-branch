@@ -1,4 +1,4 @@
--- Every weapon trainer sells every weapon proficiency.
+-- Every weapon trainer sells every weapon and armor proficiency.
 INSERT IGNORE INTO `trainer_spell` (`TrainerId`, `SpellId`, `MoneyCost`, `ReqSkillLine`, `ReqSkillRank`, `ReqAbility1`, `ReqAbility2`, `ReqAbility3`, `ReqLevel`, `VerifiedBuild`)
 SELECT t.`TrainerId`, s.`SpellId`, 1, 0, 0, 0, 0, 0, 0, 0
 FROM (
@@ -10,5 +10,5 @@ CROSS JOIN (
     SELECT 196 AS `SpellId` UNION ALL SELECT 197 UNION ALL SELECT 198 UNION ALL SELECT 199 UNION ALL
     SELECT 200 UNION ALL SELECT 201 UNION ALL SELECT 202 UNION ALL SELECT 227 UNION ALL SELECT 264 UNION ALL
     SELECT 266 UNION ALL SELECT 1180 UNION ALL SELECT 2567 UNION ALL SELECT 5009 UNION ALL SELECT 5011 UNION ALL
-    SELECT 15590
+    SELECT 15590 UNION ALL SELECT 9077 UNION ALL SELECT 8737 UNION ALL SELECT 750 UNION ALL SELECT 9116
 ) s;
