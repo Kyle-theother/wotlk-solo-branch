@@ -180,22 +180,25 @@ public:
 
     void GrantRacials(Player* player)
     {
-        uint8 race = player->getRace();
-        uint8 playerClass = player->getClass();
-        uint32 spells[4] = {};
+        if (sARACEnhanced->IsNativeCombination(player->getRace(), player->getClass()))
+            return;
+        uint32 spells[8] = {};
         uint8 count = 0;
-        if (race == RACE_BLOODELF && playerClass == CLASS_WARRIOR)
+        switch (player->getRace())
         {
-            spells[count++] = 28730; // Arcane Torrent
-            spells[count++] = 28877; // Arcane Affinity
-            spells[count++] = 822;   // Magic Resistance
-        }
-        else if (race == RACE_UNDEAD_PLAYER && playerClass == CLASS_PALADIN)
-        {
-            spells[count++] = 7744;  // Will of the Forsaken
-            spells[count++] = 20577; // Cannibalize
-            spells[count++] = 5227;  // Underwater Breathing
-            spells[count++] = 20579; // Shadow Resistance
+            case RACE_HUMAN: spells[count++] = 20598; spells[count++] = 20599; spells[count++] = 20864; spells[count++] = 59752; spells[count++] = 20597; break;
+            case RACE_ORC: spells[count++] = 20573; spells[count++] = 20574; spells[count++] = 20575; spells[count++] = 33697; spells[count++] = 33702; break;
+            case RACE_DWARF: spells[count++] = 2481; spells[count++] = 20594; spells[count++] = 20595; spells[count++] = 20596; break;
+            case RACE_NIGHTELF: spells[count++] = 20580; spells[count++] = 20582; spells[count++] = 20583; spells[count++] = 20585; break;
+            case RACE_UNDEAD_PLAYER: spells[count++] = 7744; spells[count++] = 20577; spells[count++] = 5227; spells[count++] = 20579; break;
+            case RACE_TAUREN: spells[count++] = 20549; spells[count++] = 20550; spells[count++] = 20551; spells[count++] = 20552; break;
+            case RACE_GNOME: spells[count++] = 20589; spells[count++] = 20591; spells[count++] = 20592; spells[count++] = 20593; break;
+            case RACE_TROLL: spells[count++] = 20555; spells[count++] = 20557; spells[count++] = 20558; spells[count++] = 26290; spells[count++] = 26297; break;
+            case RACE_BLOODELF:
+                spells[count++] = player->getClass() == CLASS_ROGUE ? 25046 : player->getClass() == CLASS_DEATH_KNIGHT ? 50613 : 28730;
+                spells[count++] = 28877; spells[count++] = 822; break;
+            case RACE_DRAENEI: spells[count++] = 28875; spells[count++] = 6562; spells[count++] = 28880; spells[count++] = 59542; spells[count++] = 59545; break;
+            default: return;
         }
         for (uint8 i = 0; i < count; ++i)
             if (!player->HasSpell(spells[i]))
@@ -204,25 +207,19 @@ public:
 
     void GrantStarterItems(Player* player)
     {
-        uint8 race = player->getRace();
-        uint8 playerClass = player->getClass();
-        uint8 sourceRace = 0;
-        uint8 sourceClass = 0;
-        if (race == RACE_BLOODELF && playerClass == CLASS_WARRIOR)
-        {
-            sourceRace = RACE_HUMAN;
-            sourceClass = CLASS_WARRIOR;
-        }
-        else if (race == RACE_UNDEAD_PLAYER && playerClass == CLASS_PALADIN)
-        {
-            sourceRace = RACE_HUMAN;
-            sourceClass = CLASS_PALADIN;
-        }
-        else
+        if (sARACEnhanced->IsNativeCombination(player->getRace(), player->getClass()))
             return;
-        if (player->GetLevel() > 1 || player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+        if (player->getClass() == CLASS_DEATH_KNIGHT || player->GetLevel() > 1 || player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             return;
-        if (QueryResult result = WorldDatabase.Query("SELECT itemid, amount FROM playercreateinfo_item WHERE race = {} AND class = {}", sourceRace, sourceClass))
+        uint8 sourceRace = RACE_HUMAN;
+        switch (player->getClass())
+        {
+            case CLASS_HUNTER: sourceRace = RACE_DWARF; break;
+            case CLASS_SHAMAN: sourceRace = RACE_ORC; break;
+            case CLASS_DRUID: sourceRace = RACE_NIGHTELF; break;
+            default: break;
+        }
+        if (QueryResult result = WorldDatabase.Query("SELECT itemid, amount FROM playercreateinfo_item WHERE race = {} AND class = {}", sourceRace, player->getClass()))
         {
             do
             {
