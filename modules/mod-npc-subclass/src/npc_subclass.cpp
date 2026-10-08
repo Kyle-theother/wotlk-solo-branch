@@ -177,7 +177,7 @@ public:
                             player->learnSpell(8737);   // Mail
 
                             // Cost
-                            player->ModifyMoney(20000);   // 2 Golds
+                            player->ModifyMoney(-20000);   // 2 Golds
 
                             // Chat Indicator
                             ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Mail Armor");
