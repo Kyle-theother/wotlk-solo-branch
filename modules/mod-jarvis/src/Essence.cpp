@@ -16,7 +16,19 @@
 constexpr uint32 ESSENCE_ITEM = 900014;
 constexpr uint32 JARVIS_TOTEM = 900015;
 
-static uint32 const RAID_BUFFS[] = { 48470, 48162, 48074, 43002, 48934, 48938, 25898, 47436 };
+static uint32 const RAID_BUFFS[] =
+{
+    25899, // Greater Blessing of Sanctuary
+    25898, // Greater Blessing of Kings
+    48938, // Greater Blessing of Wisdom
+    48934, // Greater Blessing of Might
+    43002, // Arcane Brilliance
+    47440, // Commanding Shout
+    48470, // Gift of the Wild
+    48162, // Prayer of Fortitude
+    48074, // Prayer of Spirit
+    57623  // Horn of Winter
+};
 static uint32 const RAID_DEBUFFS[] = { 47467, 47865, 770, 47437, 47486, 53338, 48564 };
 
 static std::unordered_set<uint32> const TRIGGER_SPELLS =
