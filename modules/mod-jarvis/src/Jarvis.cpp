@@ -296,12 +296,8 @@ static void TeachAllProfessionsAtOne(Player* player)
         if (prof.tool)
             player->AddItem(prof.tool, 1);
         if (prof.skill == 333)
-        {
             player->AddItem(6218, 1);
-            player->AddItem(22463, 1);
-            player->AddItem(44452, 1);
-        }
-        LearnTrainerRecipes(player, prof.skill, 450);
+        LearnTrainerRecipes(player, prof.skill, 1);
     }
 }
 static void TeachProfession(Player* player, uint32 index, uint8 tier)
@@ -427,7 +423,7 @@ public:
             if (TakeGold(player, 1))
             {
                 TeachAllProfessionsAtOne(player);
-                ChatHandler(player->GetSession()).SendSysMessage("All professions are at skill 1, with trainer recipes and tools.");
+                ChatHandler(player->GetSession()).SendSysMessage("All professions are at skill 1, with level 1 recipes and tools.");
             }
             return true;
         }
@@ -473,7 +469,7 @@ public:
                 for (uint8 level : gearLevels) AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "Level " + std::to_string(level) + " greens - " + GearPrice(level), ACT_GEAR, level, "Buy this green set?", GearCost(level), false);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_PROF:
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "All professions at skill 1, recipes, and tools - 1g", ACT_PROF, 1, "Learn every profession at skill 1, all trainer recipes, and the tools?", GOLD, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "All professions at skill 1, level 1 recipes, and tools - 1g", ACT_PROF, 1, "Learn every profession at skill 1, its level 1 recipes, and starting tools?", GOLD, false);
                 for (uint32 i = 0; i < sizeof(profs) / sizeof(profs[0]); ++i) if (player->GetSkillValue(profs[i].skill) < 450) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, GOSSIP_SENDER_MAIN, 200 + i);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_REP:
