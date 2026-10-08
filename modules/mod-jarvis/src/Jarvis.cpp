@@ -41,19 +41,70 @@ static bool TakeCopper(Player* player, uint32 copper)
     player->ModifyMoney(-int32(copper));
     return true;
 }
+static void GiveItem(Player* player, uint32 entry)
+{
+    if (entry)
+        player->AddItem(entry, 1);
+}
 static void GiveLevelGreens(Player* player, uint8 level)
 {
     uint8 armor = ArmorFor(player, level);
     uint8 floor = level <= 5 ? 0 : level - 5;
     uint32 given = 0;
-    if (QueryResult armorRows = WorldDatabase.Query("SELECT entry FROM item_template WHERE Quality = 2 AND class = 4 AND subclass = {} AND InventoryType IN (1,3,5,6,7,8,9,10) AND RequiredLevel BETWEEN {} AND {} AND (AllowableClass = -1 OR AllowableClass & {}) GROUP BY InventoryType ORDER BY RequiredLevel DESC LIMIT 8", armor, floor, level, player->getClassMask()))
-        do { player->AddItem(armorRows->Fetch()[0].Get<uint32>(), 1); ++given; } while (armorRows->NextRow());
+    bool haveSlot[17] = {};
+    if (QueryResult armorRows = WorldDatabase.Query("SELECT InventoryType, entry FROM item_template WHERE Quality = 2 AND class = 4 AND subclass = {} AND InventoryType IN (1,3,5,6,7,8,9,10) AND RequiredLevel BETWEEN {} AND {} AND (AllowableClass = -1 OR AllowableClass & {}) GROUP BY InventoryType ORDER BY RequiredLevel DESC LIMIT 8", armor, floor, level, player->getClassMask()))
+    {
+        do
+        {
+            uint8 slot = armorRows->Fetch()[0].Get<uint8>();
+            if (slot < 17)
+                haveSlot[slot] = true;
+            GiveItem(player, armorRows->Fetch()[1].Get<uint32>());
+            ++given;
+        } while (armorRows->NextRow());
+    }
+    bool haveWeapon = false;
     if (QueryResult weapon = WorldDatabase.Query("SELECT entry FROM item_template WHERE Quality = 2 AND class = 2 AND RequiredLevel BETWEEN {} AND {} AND (AllowableClass = -1 OR AllowableClass & {}) ORDER BY RequiredLevel DESC LIMIT 1", floor, level, player->getClassMask()))
     {
-        player->AddItem(weapon->Fetch()[0].Get<uint32>(), 1);
+        GiveItem(player, weapon->Fetch()[0].Get<uint32>());
+        haveWeapon = true;
         ++given;
     }
-    if (!given) ChatHandler(player->GetSession()).SendSysMessage("No green gear was found for that level.");
+    if (level <= 1)
+    {
+        auto whiteArmor = [&](uint8 slot)
+        {
+            if (haveSlot[slot])
+                return;
+            if (QueryResult row = WorldDatabase.Query("SELECT entry FROM item_template WHERE Quality = 1 AND class = 4 AND subclass = {} AND InventoryType = {} AND RequiredLevel <= 1 AND (AllowableClass = -1 OR AllowableClass & {}) ORDER BY ItemLevel DESC LIMIT 1", armor, slot, player->getClassMask()))
+            {
+                GiveItem(player, row->Fetch()[0].Get<uint32>());
+                ++given;
+            }
+        };
+        for (uint8 slot : { uint8(1), uint8(3), uint8(5), uint8(6), uint8(7), uint8(8), uint8(9), uint8(10) })
+            whiteArmor(slot);
+        auto whiteMisc = [&](uint8 slot, uint8 subclass, uint32 count)
+        {
+            if (QueryResult row = WorldDatabase.Query("SELECT entry FROM item_template WHERE Quality = 1 AND class = 4 AND subclass = {} AND InventoryType = {} AND RequiredLevel <= 1 ORDER BY ItemLevel DESC LIMIT 1", subclass, slot))
+                for (uint32 i = 0; i < count; ++i)
+                {
+                    GiveItem(player, row->Fetch()[0].Get<uint32>());
+                    ++given;
+                }
+        };
+        whiteMisc(2, 0, 1);
+        whiteMisc(16, 1, 1);
+        whiteMisc(11, 0, 2);
+        whiteMisc(12, 0, 2);
+        if (!haveWeapon)
+            if (QueryResult row = WorldDatabase.Query("SELECT entry FROM item_template WHERE Quality = 1 AND class = 2 AND RequiredLevel <= 1 AND (AllowableClass = -1 OR AllowableClass & {}) ORDER BY ItemLevel DESC LIMIT 1", player->getClassMask()))
+            {
+                GiveItem(player, row->Fetch()[0].Get<uint32>());
+                ++given;
+            }
+    }
+    if (!given) ChatHandler(player->GetSession()).SendSysMessage("No gear was found for that level.");
 }
 
 struct JarvisDest { char const* name; uint32 map; float x, y, z, o; };
