@@ -1,3 +1,4 @@
+#include "Chat.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
