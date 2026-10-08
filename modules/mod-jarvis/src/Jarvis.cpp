@@ -52,7 +52,7 @@ static void GiveLevelGreens(Player* player, uint8 level)
     uint8 floor = level <= 5 ? 0 : level - 5;
     uint32 given = 0;
     bool haveSlot[17] = {};
-    if (QueryResult armorRows = WorldDatabase.Query("SELECT InventoryType, entry FROM item_template WHERE Quality = 2 AND class = 4 AND subclass = {} AND InventoryType IN (1,3,5,6,7,8,9,10) AND RequiredLevel BETWEEN {} AND {} AND (AllowableClass = -1 OR AllowableClass & {}) GROUP BY InventoryType ORDER BY RequiredLevel DESC LIMIT 8", armor, floor, level, player->getClassMask()))
+    if (QueryResult armorRows = WorldDatabase.Query("SELECT InventoryType, MAX(entry) FROM item_template WHERE Quality = 2 AND class = 4 AND subclass = {} AND InventoryType IN (1,3,5,6,7,8,9,10) AND RequiredLevel BETWEEN {} AND {} AND (AllowableClass = -1 OR AllowableClass & {}) GROUP BY InventoryType ORDER BY MAX(RequiredLevel) DESC LIMIT 8", armor, floor, level, player->getClassMask()))
     {
         do
         {
