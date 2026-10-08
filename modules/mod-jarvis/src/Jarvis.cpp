@@ -3,6 +3,7 @@
 #include "DatabaseEnv.h"
 #include "InstanceSaveMgr.h"
 #include "Player.h"
+#include "PlayerScript.h"
 #include "ReputationMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
@@ -384,4 +385,23 @@ public:
         return true;
     }
 };
-void AddJarvisScripts() { new npc_jarvis(); }
+class jarvis_blood_elf_racial : public PlayerScript
+{
+public:
+    jarvis_blood_elf_racial() : PlayerScript("jarvis_blood_elf_racial") { }
+
+    void OnPlayerLogin(Player* player) override
+    {
+        if (!player || player->getRace() != RACE_BLOODELF)
+            return;
+        uint32 spell = 28730;
+        if (player->getClass() == CLASS_ROGUE)
+            spell = 25046;
+        else if (player->getClass() == CLASS_DEATH_KNIGHT)
+            spell = 50613;
+        if (!player->HasSpell(spell))
+            player->learnSpell(spell, false);
+    }
+};
+
+void AddJarvisScripts() { new npc_jarvis(); new jarvis_blood_elf_racial(); }
