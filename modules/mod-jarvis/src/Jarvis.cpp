@@ -9,6 +9,7 @@
 #include "ScriptMgr.h"
 #include "JarvisSpells.inc"
 #include <string>
+#include <vector>
 
 enum JarvisAction
 {
@@ -331,12 +332,35 @@ static void GiveReputation(Player* player, FactionEntry const* entry)
     mgr.SetOneFactionReputation(entry, 42000, false);
     mgr.SendInitialReputations();
 }
-static void ShowClassSpells(Player* player, uint32 classIndex)
+static uint8 const classIds[] = { CLASS_WARRIOR, CLASS_PALADIN, CLASS_HUNTER, CLASS_ROGUE, CLASS_PRIEST, CLASS_DEATH_KNIGHT, CLASS_SHAMAN, CLASS_MAGE, CLASS_WARLOCK, CLASS_DRUID };
+static char const* classNames[] = { "Warrior", "Paladin", "Hunter", "Rogue", "Priest", "Death Knight", "Shaman", "Mage", "Warlock", "Druid" };
+static void ShowClassSpells(Player* player, uint32 classIndex, uint32 page)
 {
-    uint8 cls = spellClassIds[classIndex];
-    for (uint32 i = 0; i < sizeof(borrowed) / sizeof(borrowed[0]); ++i)
-        if (borrowed[i].cls == cls && !player->HasSpell(borrowed[i].id))
-            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(borrowed[i].name) + " - " + std::to_string(borrowed[i].gold) + "g", ACT_SPELL_CLASS, i, "Learn this ability?", borrowed[i].gold * GOLD, false);
+    if (classIndex >= sizeof(classIds) / sizeof(classIds[0]))
+        return;
+    std::vector<uint32> spells;
+    if (QueryResult result = WorldDatabase.Query("SELECT DISTINCT ts.SpellId FROM trainer_spell ts JOIN trainer t ON t.Id = ts.TrainerId WHERE t.Type = 0 AND t.Requirement = {} ORDER BY ts.SpellId", classIds[classIndex]))
+    {
+        do
+        {
+            uint32 spellId = result->Fetch()[0].Get<uint32>();
+            if (!player->HasSpell(spellId) && sSpellMgr->GetSpellInfo(spellId))
+                spells.push_back(spellId);
+        } while (result->NextRow());
+    }
+    uint32 const perPage = 20;
+    uint32 begin = page * perPage;
+    for (uint32 i = begin; i < spells.size() && i < begin + perPage; ++i)
+    {
+        SpellInfo const* info = sSpellMgr->GetSpellInfo(spells[i]);
+        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(info->SpellName[0]) + " - 1g", 100 + classIndex, spells[i], "Learn this ability?", GOLD, false);
+    }
+    if (begin + perPage < spells.size())
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Next page", 80 + classIndex, page + 1);
+    if (page)
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Previous page", 80 + classIndex, page - 1);
+    if (spells.empty())
+        ChatHandler(player->GetSession()).SendSysMessage("You already know every trainer ability for that class.");
     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_SPELLS);
 }
 
@@ -405,10 +429,17 @@ public:
             if (TakeGold(player, racials[action].gold)) { player->learnSpell(racials[action].id, false); for (uint32 spell : racialExtra[action]) if (spell) player->learnSpell(spell, false); }
             return true;
         }
-        if (sender == ACT_SPELL_CLASS && action < sizeof(borrowed) / sizeof(borrowed[0]) && !player->HasSpell(borrowed[action].id))
+        if (sender >= 100 && sender < 110 && action > 1 && !player->HasSpell(action))
         {
             CloseGossipMenuFor(player);
-            if (TakeGold(player, borrowed[action].gold)) player->learnSpell(borrowed[action].id, false);
+            if (TakeGold(player, 1)) player->learnSpell(action, false);
+            return true;
+        }
+        if (sender >= 80 && sender < 90)
+        {
+            ClearGossipMenuFor(player);
+            ShowClassSpells(player, sender - 80, action);
+            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             return true;
         }
         if (sender == ACT_TALENT && (action == 1 || action == 5 || action == 10))
@@ -494,12 +525,8 @@ public:
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "10 talent points - 1000g", ACT_TALENT, 10, "Buy 10 talent points?", 1000 * GOLD, false);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_SPELLS:
-                for (uint32 i = 0; i < sizeof(spellClassIds) / sizeof(spellClassIds[0]); ++i)
-                {
-                    bool any = false;
-                    for (JarvisSpell const& spell : borrowed) if (spell.cls == spellClassIds[i] && !player->HasSpell(spell.id)) any = true;
-                    if (any) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, spellClasses[i], GOSSIP_SENDER_MAIN, 400 + i);
-                }
+                for (uint32 i = 0; i < sizeof(classIds) / sizeof(classIds[0]); ++i)
+                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, classNames[i], 80 + i, 0);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_HEIRLOOM:
                 AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "Warrior, one-hand", ACT_HEIRLOOM, 11, "Buy this set for 1 gold?", GOLD, false);
