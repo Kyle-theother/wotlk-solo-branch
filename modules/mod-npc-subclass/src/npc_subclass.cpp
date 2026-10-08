@@ -98,27 +98,27 @@ public:
             }
         };
 
-        offer(9077, "|TInterface\\icons\\inv_chest_leather_09:40:40:-18|t Leather Armor [20 Silvers]", GOSSIP_ACTION_INFO_DEF + 1);
-        offer(8737, "|TInterface\\icons\\inv_chest_chain_05:40:40:-18|t Mail Armor [2 Golds]", GOSSIP_ACTION_INFO_DEF + 2);
-        offer(750, "|TInterface\\icons\\inv_chest_plate01:40:40:-18|t Plate Armor [3 Golds]", GOSSIP_ACTION_INFO_DEF + 3);
-        offer(9116, "|TInterface\\icons\\inv_shield_04:40:40:-18|t Shield Wielding [30 Silvers]", GOSSIP_ACTION_INFO_DEF + 4);
-        offer(674, "|TInterface\\icons\\ability_dualwield:40:40:-18|t Dual Wielding [1 Gold]", GOSSIP_ACTION_INFO_DEF + 5);
-        offer(196, "|TInterface\\icons\\inv_axe_01:40:40:-18|t 1H Axe [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 6);
-        offer(197, "|TInterface\\icons\\inv_axe_04:40:40:-18|t 2H Axe [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 7);
-        offer(201, "|TInterface\\icons\\ability_meleedamage:40:40:-18|t 1H Sword [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 8);
-        offer(202, "|TInterface\\icons\\ability_meleedamage:40:40:-18|t 2H Sword [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 9);
-        offer(198, "|TInterface\\icons\\inv_mace_01:40:40:-18|t 1H Mace [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 10);
-        offer(199, "|TInterface\\icons\\inv_mace_04:40:40:-18|t 2H Mace [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 11);
-        offer(200, "|TInterface\\icons\\inv_spear_06:40:40:-18|t Polearm [1 Gold]", GOSSIP_ACTION_INFO_DEF + 12);
-        offer(1180, "|TInterface\\icons\\ability_steelmelee:40:40:-18|t Dagger [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 13);
-        offer(15590, "|TInterface\\icons\\inv_gauntlets_04:40:40:-18|t Fist Weapon [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 14);
-        offer(227, "|TInterface\\icons\\inv_staff_08:40:40:-18|t Stave [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 15);
-        offer(5009, "|TInterface\\icons\\ability_shootwand:40:40:-18|t Wand [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 16);
-        offer(2567, "|TInterface\\icons\\inv_throwingknife_02:40:40:-18|t Thrown Weapon [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 17);
-        offer(2764, "|TInterface\\icons\\ability_throw:40:40:-18|t Throw [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 18);
-        offer(264, "|TInterface\\icons\\inv_weapon_bow_05:40:40:-18|t Bow [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 19);
-        offer(5011, "|TInterface\\icons\\inv_weapon_crossbow_01:40:40:-18|t Crossbow [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 20);
-        offer(266, "|TInterface\\icons\\inv_weapon_rifle_01:40:40:-18|t Gun [10 Silvers]", GOSSIP_ACTION_INFO_DEF + 21);
+        offer(9077, "Leather", GOSSIP_ACTION_INFO_DEF + 1);
+        offer(8737, "Mail", GOSSIP_ACTION_INFO_DEF + 2);
+        offer(750, "Plate", GOSSIP_ACTION_INFO_DEF + 3);
+        offer(9116, "Shield", GOSSIP_ACTION_INFO_DEF + 4);
+        offer(674, "Dual Wield", GOSSIP_ACTION_INFO_DEF + 5);
+        offer(196, "1H Axe", GOSSIP_ACTION_INFO_DEF + 6);
+        offer(197, "2H Axe", GOSSIP_ACTION_INFO_DEF + 7);
+        offer(201, "1H Sword", GOSSIP_ACTION_INFO_DEF + 8);
+        offer(202, "2H Sword", GOSSIP_ACTION_INFO_DEF + 9);
+        offer(198, "1H Mace", GOSSIP_ACTION_INFO_DEF + 10);
+        offer(199, "2H Mace", GOSSIP_ACTION_INFO_DEF + 11);
+        offer(200, "Polearm", GOSSIP_ACTION_INFO_DEF + 12);
+        offer(1180, "Dagger", GOSSIP_ACTION_INFO_DEF + 13);
+        offer(15590, "Fist", GOSSIP_ACTION_INFO_DEF + 14);
+        offer(227, "Staff", GOSSIP_ACTION_INFO_DEF + 15);
+        offer(5009, "Wand", GOSSIP_ACTION_INFO_DEF + 16);
+        offer(2567, "Thrown", GOSSIP_ACTION_INFO_DEF + 17);
+        offer(2764, "Throw", GOSSIP_ACTION_INFO_DEF + 18);
+        offer(264, "Bow", GOSSIP_ACTION_INFO_DEF + 19);
+        offer(5011, "Crossbow", GOSSIP_ACTION_INFO_DEF + 20);
+        offer(266, "Gun", GOSSIP_ACTION_INFO_DEF + 21);
 
         if (!offered)
         {
@@ -150,7 +150,7 @@ public:
                 }                
                 else
                 {
-                    if (player->HasEnoughMoney(2000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(414, 0, 1, 1);  // Leather Armor Skill
@@ -159,7 +159,7 @@ public:
                         player->learnSpell(9077);   // Leather
 
                         // Cost
-                        player->ModifyMoney(-2000);   // 20 Silver
+                        player->ModifyMoney(-1);   // 20 Silver
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Leather Armor");
@@ -180,7 +180,7 @@ public:
                 }
                 else
                 {            
-                    if (player->HasEnoughMoney(20000))
+                    if (player->HasEnoughMoney(1))
                         {
                             // Set Skills
                             player->SetSkill(413, 0, 1, 1);  // Mail Armor Skill
@@ -189,7 +189,7 @@ public:
                             player->learnSpell(8737);   // Mail
 
                             // Cost
-                            player->ModifyMoney(-20000);   // 2 Golds
+                            player->ModifyMoney(-1);   // 2 Golds
 
                             // Chat Indicator
                             ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Mail Armor");
@@ -210,7 +210,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(30000))
+                    if (player->HasEnoughMoney(1))
                         {
                             // Set Skills
                             player->SetSkill(293, 0, 1, 1);  // Plate Armor Skill
@@ -219,7 +219,7 @@ public:
                             player->learnSpell(750);   // Plate
 
                             // Cost
-                            player->ModifyMoney(-30000);   // 3 Golds 
+                            player->ModifyMoney(-1);   // 3 Golds 
 
                             // Chat Indicator
                             ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Plate Armor");
@@ -240,7 +240,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(3000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(433, 0, 1, 1);  // Shield Armor Skill
@@ -250,7 +250,7 @@ public:
                         player->learnSpell(107);    // Block
 
                         // Cost
-                        player->ModifyMoney(-3000);   // 30 Silvers
+                        player->ModifyMoney(-1);   // 30 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Shield");
@@ -271,13 +271,13 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(10000))
+                    if (player->HasEnoughMoney(1))
                         {
                             // Learn Spells
                             player->learnSpell(674);   // Dual Wield
 
                             // Cost
-                            player->ModifyMoney(-10000);   // 1 Gold
+                            player->ModifyMoney(-1);   // 1 Gold
 
                             // Chat Indicator
                             ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to Dual Wield your weapons");
@@ -298,7 +298,7 @@ public:
                 }
                 else
                 {                   
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(44, 0, 1, 1);   // One-Handed Axe
@@ -307,7 +307,7 @@ public:
                         player->learnSpell(196);   // Axe
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield One-Handed Axe");
@@ -328,7 +328,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(172, 0, 1, 1);   // Two-Handed Axe
@@ -337,7 +337,7 @@ public:
                         player->learnSpell(197);   // Two-Handed Axe
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Two-Handed Axe");
@@ -358,7 +358,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(43, 0, 1, 1);   // One-Handed Sword
@@ -367,7 +367,7 @@ public:
                         player->learnSpell(201);   // One-Handed Sword
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield One-Handed Sword");
@@ -388,7 +388,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(55, 0, 1, 1);   // Two-Handed Sword
@@ -397,7 +397,7 @@ public:
                         player->learnSpell(202);   // Two-Handed Sword
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Two-Handed Sword");
@@ -418,7 +418,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(54, 0, 1, 1);   // One-Handed Mace
@@ -427,7 +427,7 @@ public:
                         player->learnSpell(198);   // One-Handed Mace
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield One-Handed Mace");
@@ -448,7 +448,7 @@ public:
                 }   
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(160, 0, 1, 1);   // Two-Handed Mace
@@ -457,7 +457,7 @@ public:
                         player->learnSpell(199);   // Two-Handed Mace
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Two-Handed Mace");
@@ -478,7 +478,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(10000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(229, 0, 1, 1);   // Polearm
@@ -487,7 +487,7 @@ public:
                         player->learnSpell(200);   // Polearm
 
                         // Cost
-                        player->ModifyMoney(-10000);   // 1 Gold
+                        player->ModifyMoney(-1);   // 1 Gold
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Polearm");
@@ -508,7 +508,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(173, 0, 1, 1);   // Dagger
@@ -517,7 +517,7 @@ public:
                         player->learnSpell(1180);   // Dagger
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Dagger");
@@ -538,7 +538,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(473, 0, 1, 1);   // Fist Weapon
@@ -547,7 +547,7 @@ public:
                         player->learnSpell(15590);   // Fist Weapon
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use Fist Weapon");
@@ -568,7 +568,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(136, 0, 1, 1);   // Stave
@@ -577,7 +577,7 @@ public:
                         player->learnSpell(227);   // Stave
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Stave");
@@ -598,7 +598,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(228, 0, 1, 1);   // Wand
@@ -608,7 +608,7 @@ public:
                         player->learnSpell(5019);   // Shooting Wand
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to cast with Wand");
@@ -629,7 +629,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(176, 0, 1, 1);   // Thrown Weapon
@@ -638,7 +638,7 @@ public:
                         player->learnSpell(2567);   // Thrown Weapon
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use Thrown Weapon");
@@ -659,13 +659,13 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Learn Spells
                         player->learnSpell(2764);   // Throw
 
                         // Cost
-                        player->ModifyMoney(-1000); // 10 Silvers
+                        player->ModifyMoney(-1); // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use Throw");
@@ -686,7 +686,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(45, 0, 1, 1);   // Bow
@@ -696,7 +696,7 @@ public:
                         player->learnSpell(3018);   // Shooting Bow
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use shoot Bow");
@@ -717,7 +717,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(226, 0, 1, 1);   // Crossbow
@@ -727,7 +727,7 @@ public:
                         player->learnSpell(3018);   // Shooting Crossbow
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use shoot Crossbow");
@@ -748,7 +748,7 @@ public:
                 }
                 else
                 {
-                    if (player->HasEnoughMoney(1000))
+                    if (player->HasEnoughMoney(1))
                     {
                         // Set Skills
                         player->SetSkill(46, 0, 1, 1);   // Gun
@@ -758,7 +758,7 @@ public:
                         player->learnSpell(3018);   // Shooting Gun
 
                         // Cost
-                        player->ModifyMoney(-1000);   // 10 Silvers
+                        player->ModifyMoney(-1);   // 10 Silvers
 
                         // Chat Indicator
                         ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use shoot Gun");
