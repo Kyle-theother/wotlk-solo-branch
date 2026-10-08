@@ -30,7 +30,10 @@ public:
             door->SetGoState(GO_STATE_ACTIVE);
             ++opened;
         }
-        ChatHandler(player->GetSession()).PSendSysMessage(opened ? "The key opens {} locked door{}." : "No locked door is close enough.", opened, opened == 1 ? "" : "s");
+        if (opened)
+            ChatHandler(player->GetSession()).PSendSysMessage("The key opens {} locked door(s).", opened);
+        else
+            ChatHandler(player->GetSession()).SendSysMessage("No locked door is close enough.");
         return false;
     }
 };
