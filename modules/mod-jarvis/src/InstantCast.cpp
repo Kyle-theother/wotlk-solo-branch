@@ -23,25 +23,39 @@ class item_instant_cast_scroll : public ItemScript
 public:
     item_instant_cast_scroll() : ItemScript("item_instant_cast_scroll") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/) override
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
-        if (!player->HasSpell(SPELL_AURA))
+        if (player->HasSpell(SPELL_AURA))
         {
-            player->learnSpell(SPELL_AURA, false);
-            ChatHandler(player->GetSession()).SendSysMessage("You have learned Aura of Instant Cast. Click the spell to toggle it.");
+            ChatHandler(player->GetSession()).SendSysMessage("You already know Aura of Instant Cast.");
             return false;
         }
-        if (player->HasAura(SPELL_AURA))
-        {
-            player->RemoveAura(SPELL_AURA);
-            ChatHandler(player->GetSession()).SendSysMessage("Aura of Instant Cast is off.");
-        }
-        else
-        {
-            player->CastSpell(player, SPELL_AURA, true);
-            ChatHandler(player->GetSession()).SendSysMessage("Aura of Instant Cast is on. Casts are instant and spell effects are halved.");
-        }
+        player->learnSpell(SPELL_AURA, false);
+        player->DestroyItemCount(item->GetEntry(), 1, true);
+        ChatHandler(player->GetSession()).SendSysMessage("You have learned Aura of Instant Cast. Cast the spell to turn it on, and cancel the aura to turn it off.");
         return false;
+    }
+};
+
+class spell_instant_cast_toggle : public SpellScript
+{
+    PrepareSpellScript(spell_instant_cast_toggle);
+
+    SpellCastResult CheckCast()
+    {
+        if (GetCaster() && GetCaster()->HasAura(SPELL_AURA))
+        {
+            GetCaster()->RemoveAura(SPELL_AURA);
+            if (Player* player = GetCaster()->ToPlayer())
+                ChatHandler(player->GetSession()).SendSysMessage("Aura of Instant Cast is off.");
+            return SPELL_FAILED_DONT_REPORT;
+        }
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_instant_cast_toggle::CheckCast);
     }
 };
 
@@ -90,4 +104,5 @@ void AddJarvisInstantCastScripts()
     new item_instant_cast_scroll();
     new instant_cast_effect();
     RegisterSpellScript(spell_aura_instant_cast);
+    RegisterSpellScript(spell_instant_cast_toggle);
 }
