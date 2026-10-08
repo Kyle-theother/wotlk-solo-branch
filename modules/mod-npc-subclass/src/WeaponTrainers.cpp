@@ -113,7 +113,7 @@ public:
         if (action == 1)
         {
             CloseGossipMenuFor(player);
-            player->GetSession()->SendTrainerList(creature->GetGUID());
+            player->GetSession()->SendTrainerList(creature);
             return true;
         }
         if (action < 100 || action >= 100 + sizeof(weaponSkills) / sizeof(weaponSkills[0]))
