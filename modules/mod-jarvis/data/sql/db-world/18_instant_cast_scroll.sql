@@ -6,7 +6,7 @@ CREATE TEMPORARY TABLE `tmp_scroll` AS SELECT * FROM `item_template` WHERE `entr
 UPDATE `tmp_scroll` SET
     `entry` = 900030,
     `name` = 'Scroll of Aura of Instant Cast',
-    `description` = 'Teaches Aura of Instant Cast. Use again to toggle it. Instant casts, spell effects reduced by half.',
+    `description` = 'Teaches Aura of Instant Cast.',
     `Quality` = 3,
     `bonding` = 1,
     `maxcount` = 1,
