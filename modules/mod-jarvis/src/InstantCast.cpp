@@ -3,7 +3,6 @@
 #include "ItemScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "AllSpellScript.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "UnitScript.h"
@@ -62,20 +61,6 @@ class spell_aura_instant_cast : public AuraScript
     }
 };
 
-class instant_cast_time : public AllSpellScript
-{
-public:
-    instant_cast_time() : AllSpellScript("instant_cast_time") { }
-
-    void OnSpellPrepare(Spell* spell, Unit* caster, SpellInfo const* spellInfo) override
-    {
-        if (!spell || !HasInstantCast(caster) || !spellInfo || spellInfo->Id == SPELL_AURA)
-            return;
-        spell->m_casttime = 0;
-        spell->m_timer = 0;
-    }
-};
-
 class instant_cast_effect : public UnitScript
 {
 public:
@@ -105,5 +90,4 @@ void AddJarvisInstantCastScripts()
     new item_instant_cast_scroll();
     new instant_cast_effect();
     RegisterSpellScript(spell_aura_instant_cast);
-    new instant_cast_time();
 }
