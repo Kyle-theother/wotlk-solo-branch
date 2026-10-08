@@ -1,6 +1,7 @@
 #include "ARACEnhanced.h"
 #include "ScriptMgr.h"
 #include "Config.h"
+#include "Item.h"
 #include "Player.h"
 #include "World.h"
 #include "Log.h"
@@ -177,19 +178,74 @@ class ARACEnhanced_PlayerScript : public PlayerScript
 public:
     ARACEnhanced_PlayerScript() : PlayerScript("ARACEnhanced_PlayerScript") { }
 
+    void GrantRacials(Player* player)
+    {
+        uint8 race = player->getRace();
+        uint8 playerClass = player->getClass();
+        uint32 spells[4] = {};
+        uint8 count = 0;
+        if (race == RACE_BLOODELF && playerClass == CLASS_WARRIOR)
+        {
+            spells[count++] = 28730; // Arcane Torrent
+            spells[count++] = 28877; // Arcane Affinity
+            spells[count++] = 822;   // Magic Resistance
+        }
+        else if (race == RACE_UNDEAD_PLAYER && playerClass == CLASS_PALADIN)
+        {
+            spells[count++] = 7744;  // Will of the Forsaken
+            spells[count++] = 20577; // Cannibalize
+            spells[count++] = 5227;  // Underwater Breathing
+            spells[count++] = 20579; // Shadow Resistance
+        }
+        for (uint8 i = 0; i < count; ++i)
+            if (!player->HasSpell(spells[i]))
+                player->learnSpell(spells[i], false);
+    }
+
+    void GrantStarterItems(Player* player)
+    {
+        uint8 race = player->getRace();
+        uint8 playerClass = player->getClass();
+        uint8 sourceRace = 0;
+        uint8 sourceClass = 0;
+        if (race == RACE_BLOODELF && playerClass == CLASS_WARRIOR)
+        {
+            sourceRace = RACE_HUMAN;
+            sourceClass = CLASS_WARRIOR;
+        }
+        else if (race == RACE_UNDEAD_PLAYER && playerClass == CLASS_PALADIN)
+        {
+            sourceRace = RACE_HUMAN;
+            sourceClass = CLASS_PALADIN;
+        }
+        else
+            return;
+        if (player->GetLevel() > 1 || player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            return;
+        if (QueryResult result = WorldDatabase.Query("SELECT itemid, amount FROM playercreateinfo_item WHERE race = {} AND class = {}", sourceRace, sourceClass))
+        {
+            do
+            {
+                Field* fields = result->Fetch();
+                player->AddItem(fields[0].Get<uint32>(), fields[1].Get<uint32>());
+            } while (result->NextRow());
+        }
+    }
+
     void OnPlayerLogin(Player* player) override
     {
         if (!player)
             return;
+        GrantRacials(player);
+        GrantStarterItems(player);
+    }
 
-        uint8 race = player->getRace();
-        uint8 playerClass = player->getClass();
-
-        if (!sARACEnhanced->IsCombinationAllowed(race, playerClass))
-        {
-            LOG_WARN("module", "[ARAC-Enhanced] Player {} logged in with disabled race/class combo ({}/{})",
-                player->GetName(), race, playerClass);
-        }
+    void OnPlayerFirstLogin(Player* player) override
+    {
+        if (!player)
+            return;
+        GrantRacials(player);
+        GrantStarterItems(player);
     }
 };
 
