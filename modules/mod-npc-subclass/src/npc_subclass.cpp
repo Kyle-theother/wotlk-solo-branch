@@ -161,14 +161,7 @@ public:
                 }
                 else
                 {            
-                    if (player->GetLevel() < 45)
-                    {
-                        ChatHandler(player->GetSession()).SendSysMessage("Please come back when you have leveled up a bit more [Level 45]");
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                    else if (player->GetLevel() >= 45)        
-                    {            
-                        if (player->HasEnoughMoney(20000))
+                    if (player->HasEnoughMoney(20000))
                         {
                             // Set Skills
                             player->SetSkill(413, 0, 1, 1);  // Mail Armor Skill
@@ -185,7 +178,6 @@ public:
                             // Goodbye
                             player->PlayerTalkClass->SendCloseGossip();
                         }
-                    }
                 }
             }
             break;
@@ -199,14 +191,7 @@ public:
                 }
                 else
                 {
-                    if (player->GetLevel() < 60)
-                    {
-                        ChatHandler(player->GetSession()).SendSysMessage("Please come back when you have leveled up a bit more [Level 60]");
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                    else if (player->GetLevel() >= 60)        
-                    {  
-                        if (player->HasEnoughMoney(30000))
+                    if (player->HasEnoughMoney(30000))
                         {
                             // Set Skills
                             player->SetSkill(293, 0, 1, 1);  // Plate Armor Skill
@@ -223,7 +208,6 @@ public:
                             // Goodbye
                             player->PlayerTalkClass->SendCloseGossip();
                         }
-                    }
                 }
             }
             break;
@@ -268,14 +252,7 @@ public:
                 }
                 else
                 {
-                    if (player->GetLevel() < 25)
-                    {
-                            ChatHandler(player->GetSession()).SendSysMessage("Please come back when you have leveled up a bit more [Level 25]");
-                            player->PlayerTalkClass->SendCloseGossip();
-                    }
-                    else if (player->GetLevel() >= 25)        
-                    {  
-                        if (player->HasEnoughMoney(10000))
+                    if (player->HasEnoughMoney(10000))
                         {
                             // Learn Spells
                             player->learnSpell(674);   // Dual Wield
@@ -289,7 +266,6 @@ public:
                             // Goodbye
                             player->PlayerTalkClass->SendCloseGossip();
                         }
-                    }
                 }
             }    
             break;
