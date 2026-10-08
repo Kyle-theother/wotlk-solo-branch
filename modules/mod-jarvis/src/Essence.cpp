@@ -87,7 +87,14 @@ static bool IsTriggerSpell(SpellInfo const* spellInfo)
 static void ApplyRaidBuffs(Player* player)
 {
     for (uint32 spell : RAID_BUFFS)
-        player->AddAura(spell, player);
+    {
+        Aura* aura = player->AddAura(spell, player);
+        if (aura && (spell == 47440 || spell == 57623))
+        {
+            aura->SetMaxDuration(60 * MINUTE * IN_MILLISECONDS);
+            aura->SetDuration(60 * MINUTE * IN_MILLISECONDS);
+        }
+    }
 }
 
 static void ApplyRaidDebuffs(Player* player, Unit* victim)
