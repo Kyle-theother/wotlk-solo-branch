@@ -1,4 +1,4 @@
--- All weapon skills visible for every race and class.
+-- All weapon and armor skills visible for every race and class.
 -- Does not touch CharStartOutfit.dbc or Silithus.
 -- Server reads these rows over SkillRaceClassInfo.dbc on worldserver start.
 -- Client still needs the matching DBC in a patch MPQ or the skills pane stays empty.
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `skillraceclassinfo_dbc` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
-DELETE FROM `skillraceclassinfo_dbc` WHERE `ID` BETWEEN 900001 AND 900015;
+DELETE FROM `skillraceclassinfo_dbc` WHERE `ID` BETWEEN 900001 AND 900020;
 INSERT INTO `skillraceclassinfo_dbc` (`ID`,`SkillID`,`RaceMask`,`ClassMask`,`Flags`,`MinLevel`,`SkillTierID`,`SkillCostIndex`) VALUES
 (900001, 43, -1, -1, 128, 0, 0, 0), /* Swords */
 (900002, 44, -1, -1, 128, 0, 0, 0), /* Axes */
@@ -30,4 +30,9 @@ INSERT INTO `skillraceclassinfo_dbc` (`ID`,`SkillID`,`RaceMask`,`ClassMask`,`Fla
 (900012, 226, -1, -1, 128, 0, 0, 0), /* Crossbows */
 (900013, 228, -1, -1, 128, 0, 0, 0), /* Wands */
 (900014, 229, -1, -1, 128, 0, 0, 0), /* Polearms */
-(900015, 473, -1, -1, 128, 0, 0, 0); /* Fist Weapons */
+(900015, 473, -1, -1, 128, 0, 0, 0), /* Fist Weapons */
+(900016, 415, -1, -1, 128, 0, 0, 0), /* Cloth */
+(900017, 414, -1, -1, 128, 0, 0, 0), /* Leather */
+(900018, 413, -1, -1, 128, 0, 0, 0), /* Mail */
+(900019, 293, -1, -1, 128, 0, 0, 0), /* Plate */
+(900020, 433, -1, -1, 128, 0, 0, 0); /* Shields */
