@@ -88,6 +88,33 @@ static void LearnProficiency(Player* player, uint32 spellId, uint16 skillId)
         player->SetSkill(skillId, 0, 1, 1);
 }
 
+
+SubClass_NPC::Proficiency const SubClass_NPC::profs[] =
+{
+    { 9077, 414, 0, "Leather", true },
+    { 8737, 413, 0, "Mail", true },
+    { 750, 293, 0, "Plate", true },
+    { 9116, 433, 107, "Shield", true },
+    { 674, 0, 0, "Dual Wield", false },
+    { 196, 44, 0, "1H Axe", false },
+    { 197, 172, 0, "2H Axe", false },
+    { 201, 43, 0, "1H Sword", false },
+    { 202, 55, 0, "2H Sword", false },
+    { 198, 54, 0, "1H Mace", false },
+    { 199, 160, 0, "2H Mace", false },
+    { 200, 229, 0, "Polearm", false },
+    { 1180, 173, 0, "Dagger", false },
+    { 15590, 473, 0, "Fist", false },
+    { 227, 136, 0, "Staff", false },
+    { 5009, 228, 5019, "Wand", false },
+    { 2567, 176, 0, "Thrown", false },
+    { 2764, 0, 0, "Throw", false },
+    { 264, 45, 3018, "Bow", false },
+    { 5011, 226, 3018, "Crossbow", false },
+    { 266, 46, 3018, "Gun", false },
+    { 0, 0, 0, "", false }
+};
+
 class SubClass_NPC : public CreatureScript
 {
 
@@ -95,677 +122,77 @@ public:
 
     SubClass_NPC() : CreatureScript("SubClass_NPC") {}
 
+    struct Proficiency
+    {
+        uint32 spellId;
+        uint16 skillId;
+        uint32 extraSpell;
+        char const* name;
+        bool armor;
+    };
+
+    static Proficiency const profs[];
+
+    void ShowProficiencies(Player* player, Creature* creature, bool armor)
+    {
+        ClearGossipMenuFor(player);
+        uint32 shown = 0;
+        for (uint32 i = 0; profs[i].spellId; ++i)
+        {
+            if (profs[i].armor != armor || player->HasSpell(profs[i].spellId))
+                continue;
+            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, armor ? 10 : 11, i);
+            ++shown;
+        }
+        if (!shown)
+            ChatHandler(player->GetSession()).SendSysMessage(armor ? "You already know every armor proficiency." : "You already know every weapon proficiency.");
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, 99);
+        SendGossipMenuFor(player, 600001, creature->GetGUID());
+    }
+
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        bool offered = false;
-        auto offer = [&](uint32 spellId, std::string const& text, uint32 action)
-        {
-            if (!player->HasSpell(spellId))
-            {
-                AddGossipItemFor(player, 10, text, GOSSIP_SENDER_MAIN, action);
-                offered = true;
-            }
-        };
-
-        offer(9077, "Leather", GOSSIP_ACTION_INFO_DEF + 1);
-        offer(8737, "Mail", GOSSIP_ACTION_INFO_DEF + 2);
-        offer(750, "Plate", GOSSIP_ACTION_INFO_DEF + 3);
-        offer(9116, "Shield", GOSSIP_ACTION_INFO_DEF + 4);
-        offer(674, "Dual Wield", GOSSIP_ACTION_INFO_DEF + 5);
-        offer(196, "1H Axe", GOSSIP_ACTION_INFO_DEF + 6);
-        offer(197, "2H Axe", GOSSIP_ACTION_INFO_DEF + 7);
-        offer(201, "1H Sword", GOSSIP_ACTION_INFO_DEF + 8);
-        offer(202, "2H Sword", GOSSIP_ACTION_INFO_DEF + 9);
-        offer(198, "1H Mace", GOSSIP_ACTION_INFO_DEF + 10);
-        offer(199, "2H Mace", GOSSIP_ACTION_INFO_DEF + 11);
-        offer(200, "Polearm", GOSSIP_ACTION_INFO_DEF + 12);
-        offer(1180, "Dagger", GOSSIP_ACTION_INFO_DEF + 13);
-        offer(15590, "Fist", GOSSIP_ACTION_INFO_DEF + 14);
-        offer(227, "Staff", GOSSIP_ACTION_INFO_DEF + 15);
-        offer(5009, "Wand", GOSSIP_ACTION_INFO_DEF + 16);
-        offer(2567, "Thrown", GOSSIP_ACTION_INFO_DEF + 17);
-        offer(2764, "Throw", GOSSIP_ACTION_INFO_DEF + 18);
-        offer(264, "Bow", GOSSIP_ACTION_INFO_DEF + 19);
-        offer(5011, "Crossbow", GOSSIP_ACTION_INFO_DEF + 20);
-        offer(266, "Gun", GOSSIP_ACTION_INFO_DEF + 21);
-
-        if (!offered)
-        {
-            ChatHandler(player->GetSession()).SendSysMessage("You already know every proficiency this trainer sells.");
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        }
-
-
+        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Armor", GOSSIP_SENDER_MAIN, 1);
+        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Weapons", GOSSIP_SENDER_MAIN, 2);
         SendGossipMenuFor(player, 600001, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /* creature */, uint32 sender, uint32 uiAction) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
-
-        if (sender != GOSSIP_SENDER_MAIN)
-            return false;
-
-        switch (uiAction)
+        if (sender == GOSSIP_SENDER_MAIN && action == 99)
+            return OnGossipHello(player, creature);
+        if (sender == GOSSIP_SENDER_MAIN && action == 1)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            {
-                if (player->HasSpell(9077))
-                {   
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }                
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(9077);   // Leather
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 20 Silver
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Leather Armor");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }   
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            { 
-                if (player->HasSpell(8737))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {            
-                    if (player->HasEnoughMoney(1))
-                        {
-                            // Set Skills
-
-                            // Learn Spells
-                            player->learnSpell(8737);   // Mail
-
-                            // Cost
-                            player->ModifyMoney(-1);   // 2 Golds
-
-                            // Chat Indicator
-                            ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Mail Armor");
-
-                            // Goodbye
-                            player->PlayerTalkClass->SendCloseGossip();
-                        }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            {
-                if (player->HasSpell(750))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                        {
-                            // Set Skills
-
-                            // Learn Spells
-                            player->learnSpell(750);   // Plate
-
-                            // Cost
-                            player->ModifyMoney(-1);   // 3 Golds 
-
-                            // Chat Indicator
-                            ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wear Plate Armor");
-
-                            // Goodbye
-                            player->PlayerTalkClass->SendCloseGossip();
-                        }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            { 
-                if (player->HasSpell(9116))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(9116);   // Shield
-                        player->learnSpell(107);    // Block
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 30 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Shield");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            {
-                if (player->HasSpell(674))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                        {
-                            // Learn Spells
-                            player->learnSpell(674);   // Dual Wield
-
-                            // Cost
-                            player->ModifyMoney(-1);   // 1 Gold
-
-                            // Chat Indicator
-                            ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to Dual Wield your weapons");
-
-                            // Goodbye
-                            player->PlayerTalkClass->SendCloseGossip();
-                        }
-                }
-            }    
-            break;
-        
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            {
-                if (player->HasSpell(196))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {                   
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        LearnProficiency(player, 196, 44);   // 1H Axe
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield One-Handed Axe");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 7:
-            {
-                if (player->HasSpell(197))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        LearnProficiency(player, 197, 172);   // 2H Axe
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Two-Handed Axe");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 8:
-            {
-                if (player->HasSpell(201))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        LearnProficiency(player, 201, 43);   // 1H Sword
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield One-Handed Sword");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 9:
-            {   
-                if (player->HasSpell(202))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(202);   // Two-Handed Sword
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Two-Handed Sword");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 10:
-            {
-                if (player->HasSpell(198))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(198);   // One-Handed Mace
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield One-Handed Mace");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 11:
-            {
-                if (player->HasSpell(199))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }   
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(199);   // Two-Handed Mace
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Two-Handed Mace");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            } 
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 12:
-            {
-                if (player->HasSpell(200))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(200);   // Polearm
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 1 Gold
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Polearm");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }    
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 13:
-            {
-                if (player->HasSpell(1180))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        LearnProficiency(player, 1180, 173);   // Dagger
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Dagger");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }   
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 14:
-            {
-                if (player->HasSpell(15590))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(15590);   // Fist Weapon
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use Fist Weapon");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 15:
-            {
-                if (player->HasSpell(227))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(227);   // Stave
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to wield Stave");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 16:
-            {
-                if (player->HasSpell(5009))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        LearnProficiency(player, 5009, 228);   // Wand
-                        player->learnSpell(5019);   // Shooting Wand
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to cast with Wand");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 17:
-            {
-                if (player->HasSpell(2567))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(2567);   // Thrown Weapon
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use Thrown Weapon");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 18:
-            {
-                if (player->HasSpell(2764))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("Yo are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Learn Spells
-                        player->learnSpell(2764);   // Throw
-
-                        // Cost
-                        player->ModifyMoney(-1); // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use Throw");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 19:
-            {
-                if (player->HasSpell(264))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(264);    // Bow
-                        player->learnSpell(3018);   // Shooting Bow
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use shoot Bow");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 20:
-            {
-                if (player->HasSpell(5011))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(5011);   // Crossbow
-                        player->learnSpell(3018);   // Shooting Crossbow
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use shoot Crossbow");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
-
-        case GOSSIP_ACTION_INFO_DEF + 21:
-            {
-                if (player->HasSpell(266))
-                {
-                    ChatHandler(player->GetSession()).SendSysMessage("You are competent with this skill already");
-                    player->PlayerTalkClass->SendCloseGossip();
-                }
-                else
-                {
-                    if (player->HasEnoughMoney(1))
-                    {
-                        // Set Skills
-
-                        // Learn Spells
-                        player->learnSpell(266);   // Gun
-                        player->learnSpell(3018);   // Shooting Gun
-
-                        // Cost
-                        player->ModifyMoney(-1);   // 10 Silvers
-
-                        // Chat Indicator
-                        ChatHandler(player->GetSession()).SendSysMessage("|cff4CFF00You're now able to use shoot Gun");
-
-                        // Goodbye
-                        player->PlayerTalkClass->SendCloseGossip();
-                    }
-                }
-            }
-            break;
+            ShowProficiencies(player, creature, true);
+            return true;
         }
-
+        if (sender == GOSSIP_SENDER_MAIN && action == 2)
+        {
+            ShowProficiencies(player, creature, false);
+            return true;
+        }
+        if ((sender == 10 || sender == 11) && action < 32 && profs[action].spellId)
+        {
+            Proficiency const& prof = profs[action];
+            if (!player->HasEnoughMoney(1))
+            {
+                ChatHandler(player->GetSession()).SendSysMessage("You do not have enough money.");
+                ShowProficiencies(player, creature, sender == 10);
+                return true;
+            }
+            player->ModifyMoney(-1);
+            LearnProficiency(player, prof.spellId, prof.skillId);
+            if (prof.extraSpell)
+                LearnProficiency(player, prof.extraSpell, 0);
+            ChatHandler(player->GetSession()).PSendSysMessage("Learned {}.", prof.name);
+            ShowProficiencies(player, creature, sender == 10);
+            return true;
+        }
+        CloseGossipMenuFor(player);
         return true;
     }
 
-
-    // Passive Emotes
     struct NPC_PassiveAI : public ScriptedAI
     {
         NPC_PassiveAI(Creature * creature) : ScriptedAI(creature) { }
