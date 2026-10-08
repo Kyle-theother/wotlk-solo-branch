@@ -488,7 +488,7 @@ public:
         }
         ClearGossipMenuFor(player);
         if (action == ACT_BACK) return OnGossipHello(player, creature);
-        if (action >= 400 && action < 410) { ShowClassSpells(player, action - 400); SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID()); return true; }
+        if (action >= 400 && action < 410) { ClearGossipMenuFor(player); ShowClassSpells(player, action - 400, 0); SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID()); return true; }
         switch (action)
         {
             case ACT_SALE: player->GetSession()->SendListInventory(creature->GetGUID()); return true;
