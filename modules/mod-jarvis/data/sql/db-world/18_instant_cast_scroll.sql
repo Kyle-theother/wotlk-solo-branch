@@ -23,6 +23,30 @@ INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `ExtendedCost
 
 DELETE FROM `spell_dbc` WHERE `Id` = 900031;
 CREATE TEMPORARY TABLE `tmp_spell` AS SELECT * FROM `spell_dbc` WHERE `Id` = 1459;
-UPDATE `tmp_spell` SET `Id` = 900031, `Effect1` = 6, `Effect2` = 0, `Effect3` = 0, `EffectBasePoints1` = 0, `EffectBasePoints2` = 0, `EffectBasePoints3` = 0, `ImplicitTargetA1` = 1, `ImplicitTargetA2` = 0, `ImplicitTargetA3` = 0, `DurationIndex` = 21, `CastingTimeIndex` = 1, `RangeIndex` = 1, `Attributes` = 0, `AttributesEx` = 0, `SpellName` = 'Aura of Instant Cast', `Rank` = '', `Description` = 'Toggle. Casts are instant and spell effects are reduced by half.';
+UPDATE `tmp_spell` SET
+    `Id` = 900031,
+    `Effect1` = 6,
+    `Effect2` = 6,
+    `Effect3` = 6,
+    `EffectApplyAuraName1` = 216,
+    `EffectApplyAuraName2` = 79,
+    `EffectApplyAuraName3` = 118,
+    `EffectBasePoints1` = 10000,
+    `EffectBasePoints2` = -51,
+    `EffectBasePoints3` = -51,
+    `EffectDieSides1` = 1,
+    `EffectDieSides2` = 1,
+    `EffectDieSides3` = 1,
+    `ImplicitTargetA1` = 1,
+    `ImplicitTargetA2` = 1,
+    `ImplicitTargetA3` = 1,
+    `DurationIndex` = 21,
+    `CastingTimeIndex` = 1,
+    `RangeIndex` = 1,
+    `Attributes` = 0,
+    `AttributesEx` = 0,
+    `SpellName` = 'Aura of Instant Cast',
+    `Rank` = '',
+    `Description` = 'Toggle. Casts are instant and spell effects are reduced by half.';
 INSERT INTO `spell_dbc` SELECT * FROM `tmp_spell`;
 DROP TEMPORARY TABLE `tmp_spell`;
