@@ -544,7 +544,7 @@ public:
     /// Is logout cooldown expired?
     bool ShouldLogOut(time_t currTime) const
     {
-        return (_logoutTime > 0 && currTime >= _logoutTime + 20);
+        return (_logoutTime > 0 && currTime >= _logoutTime + 5);
     }
 
     void LogoutPlayer(bool save, bool redirecting = false);
