@@ -1,4 +1,5 @@
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "CreatureScript.h"
 #include "Player.h"
 #include "PlayerScript.h"
@@ -83,6 +84,9 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (!creature->IsTrainer())
+            return false;
+        QueryResult result = WorldDatabase.Query("SELECT 1 FROM creature_default_trainer cdt JOIN trainer_spell ts ON ts.TrainerId = cdt.TrainerId WHERE cdt.CreatureId = {} AND ts.SpellId IN (196,197,198,199,200,201,202,227,264,266,1180,2567,5009,5011,15590) LIMIT 1", creature->GetEntry());
+        if (!result)
             return false;
         ClearGossipMenuFor(player);
         for (uint32 i = 0; i < sizeof(weaponSkills) / sizeof(weaponSkills[0]); ++i)
