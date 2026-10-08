@@ -82,10 +82,13 @@ public:
 
 static void LearnProficiency(Player* player, uint32 spellId, uint16 skillId)
 {
-    if (!player->HasSpell(spellId))
+    if (spellId && !player->HasSpell(spellId))
         player->learnSpell(spellId, false);
-    if (skillId && player->GetSkillValue(skillId) == 0)
-        player->SetSkill(skillId, 1, 1, 1);
+    if (!skillId)
+        return;
+    uint16 value = player->GetSkillValue(skillId);
+    if (value == 0)
+        player->SetSkill(skillId, 0, 1, 1);
 }
 
 
@@ -115,13 +118,10 @@ public:
         {
             if (profs[i].armor != armor)
                 continue;
-            if (player->HasSpell(profs[i].spellId))
-            {
-                if (profs[i].skillId && player->GetSkillValue(profs[i].skillId) == 0)
-                    player->SetSkill(profs[i].skillId, 1, 1, 1);
+            bool known = player->HasSpell(profs[i].spellId) && (!profs[i].skillId || player->GetSkillValue(profs[i].skillId) > 0);
+            if (known)
                 continue;
-            }
-            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, armor ? 10 : 11, i);
+            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(profs[i].name) + " - 1c", GOSSIP_SENDER_MAIN, 100 + i, "Learn this proficiency for 1 copper?", 1, false);
             ++shown;
         }
         if (!shown)
@@ -132,41 +132,50 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
+        ClearGossipMenuFor(player);
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Armor", GOSSIP_SENDER_MAIN, 1);
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Weapons", GOSSIP_SENDER_MAIN, 2);
         SendGossipMenuFor(player, 600001, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        if (sender == GOSSIP_SENDER_MAIN && action == 99)
+        if (action == 99)
             return OnGossipHello(player, creature);
-        if (sender == GOSSIP_SENDER_MAIN && action == 1)
+        if (action == 1)
         {
             ShowProficiencies(player, creature, true);
             return true;
         }
-        if (sender == GOSSIP_SENDER_MAIN && action == 2)
+        if (action == 2)
         {
             ShowProficiencies(player, creature, false);
             return true;
         }
-        if ((sender == 10 || sender == 11) && action < 32 && profs[action].spellId)
+        if (action >= 100 && action < 130)
         {
-            Proficiency const& prof = profs[action];
+            Proficiency const& prof = profs[action - 100];
+            if (!prof.spellId)
+            {
+                CloseGossipMenuFor(player);
+                return true;
+            }
             if (!player->HasEnoughMoney(1))
             {
                 ChatHandler(player->GetSession()).SendSysMessage("You do not have enough money.");
-                ShowProficiencies(player, creature, sender == 10);
+                ShowProficiencies(player, creature, prof.armor);
                 return true;
             }
             player->ModifyMoney(-1);
             LearnProficiency(player, prof.spellId, prof.skillId);
             if (prof.extraSpell)
                 LearnProficiency(player, prof.extraSpell, 0);
-            ChatHandler(player->GetSession()).PSendSysMessage("Learned {}.", prof.name);
-            ShowProficiencies(player, creature, sender == 10);
+            if (prof.skillId && player->GetSkillValue(prof.skillId) == 0)
+                ChatHandler(player->GetSession()).PSendSysMessage("The spell was learned, but {} did not gain a skill row.", prof.name);
+            else
+                ChatHandler(player->GetSession()).PSendSysMessage("Learned {}.", prof.name);
+            ShowProficiencies(player, creature, prof.armor);
             return true;
         }
         CloseGossipMenuFor(player);
