@@ -29,7 +29,29 @@ static uint32 const RAID_BUFFS[] =
     48074, // Prayer of Spirit
     57623  // Horn of Winter
 };
-static uint32 const RAID_DEBUFFS[] = { 47467, 47865, 770, 47437, 47486, 53338, 48564 };
+static uint32 const RAID_DEBUFFS[] =
+{
+    47467, // Sunder Armor
+    48669, // Expose Armor
+    770,   // Faerie Fire
+    16857, // Faerie Fire (Feral)
+    47437, // Demoralizing Shout
+    48560, // Demoralizing Roar
+    50511, // Curse of Weakness
+    47502, // Thunder Clap
+    26016, // Vindication
+    47865, // Curse of Elements
+    51735, // Ebon Plague
+    33198, // Misery
+    48564, // Mangle
+    47486, // Mortal Strike
+    57975, // Wound Poison
+    48468, // Insect Swarm
+    11719, // Curse of Tongues
+    53408, // Judgement of Wisdom
+    20271, // Judgement of Light
+    53338  // Hunter's Mark
+};
 
 static std::unordered_set<uint32> const TRIGGER_SPELLS =
 {
