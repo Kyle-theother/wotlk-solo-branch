@@ -7,6 +7,7 @@
 #include "ReputationMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include "SpellMgr.h"
 #include "JarvisSpells.inc"
 #include <string>
 #include <vector>
