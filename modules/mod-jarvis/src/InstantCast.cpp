@@ -3,6 +3,7 @@
 #include "ItemScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellMgr.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "UnitScript.h"
@@ -25,6 +26,11 @@ public:
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
+        if (!sSpellMgr->GetSpellInfo(SPELL_AURA))
+        {
+            ChatHandler(player->GetSession()).SendSysMessage("Aura of Instant Cast is not loaded on the server yet.");
+            return false;
+        }
         if (player->HasSpell(SPELL_AURA))
         {
             ChatHandler(player->GetSession()).SendSysMessage("You already know Aura of Instant Cast.");
