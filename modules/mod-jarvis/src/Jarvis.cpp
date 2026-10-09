@@ -18,7 +18,7 @@ enum JarvisAction
     ACT_TRAVEL = 6, ACT_CITIES = 7, ACT_RAIDS = 8, ACT_ZONES = 9,
     ACT_RAID_VANILLA = 30, ACT_RAID_TBC = 31, ACT_RAID_WOTLK = 32,
     ACT_ZONE_EK = 40, ACT_ZONE_KAL = 41, ACT_ZONE_OUT = 42, ACT_ZONE_NR = 43,
-    ACT_RACIAL = 20, ACT_TALENT = 21, ACT_SPELLS = 22, ACT_GEAR = 23, ACT_SPELL_CLASS = 24, ACT_BACK = 99
+    ACT_RACIAL = 20, ACT_TALENT = 21, ACT_SPELLS = 22, ACT_GEAR = 23, ACT_SPELL_CLASS = 24, ACT_INSTANT = 25, ACT_BACK = 99
 };
 
 static uint8 const gearLevels[] = { 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80 };
@@ -372,6 +372,8 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "What do you have for sale?", GOSSIP_SENDER_MAIN, ACT_SALE);
+        if (!player->HasSpell(900031))
+            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Learn Aura of Instant Cast - 1 copper", GOSSIP_SENDER_MAIN, ACT_INSTANT, "Learn Aura of Instant Cast?", 1, false);
         AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "Buy green gear for a level", GOSSIP_SENDER_MAIN, ACT_GEAR);
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Learn professions", GOSSIP_SENDER_MAIN, ACT_PROF);
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Can you help me gain reputation?", GOSSIP_SENDER_MAIN, ACT_REP);
@@ -488,6 +490,13 @@ public:
             if (count) { CloseGossipMenuFor(player); if (TakeGold(player, 1)) for (uint32 i = 0; i < count; ++i) player->AddItem(items[i], 1); return true; }
         }
         ClearGossipMenuFor(player);
+        if (action == ACT_INSTANT)
+        {
+            CloseGossipMenuFor(player);
+            if (!player->HasSpell(900031) && TakeCopper(player, 1))
+                player->learnSpell(900031, false);
+            return true;
+        }
         if (action == ACT_BACK) return OnGossipHello(player, creature);
         if (action >= 400 && action < 410) { ClearGossipMenuFor(player); ShowClassSpells(player, action - 400, 0); SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID()); return true; }
         switch (action)
