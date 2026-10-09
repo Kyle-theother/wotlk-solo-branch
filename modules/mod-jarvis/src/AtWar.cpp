@@ -19,7 +19,7 @@ public:
             FactionEntry const* entry = sFactionStore.LookupEntry(id);
             if (!entry)
                 continue;
-            if (FactionState* state = player->GetReputationMgr().GetState(entry))
+            if (FactionState* state = const_cast<FactionState*>(player->GetReputationMgr().GetState(entry)))
             {
                 state->Flags &= ~(FACTION_FLAG_PEACE_FORCED | FACTION_FLAG_INVISIBLE_FORCED | FACTION_FLAG_HIDDEN);
                 state->Flags |= FACTION_FLAG_VISIBLE;
