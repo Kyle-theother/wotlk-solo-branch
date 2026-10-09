@@ -9,7 +9,6 @@ UPDATE `tmp_scroll` SET
     `subclass` = 0,
     `name` = 'Scroll of Aura of Instant Cast',
     `description` = 'Teaches Aura of Instant Cast.',
-    `displayid` = 132935,
     `Quality` = 3,
     `ItemLevel` = 1,
     `RequiredLevel` = 0,
