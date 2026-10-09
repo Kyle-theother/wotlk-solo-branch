@@ -1,5 +1,6 @@
 #include "Chat.h"
 #include "Item.h"
+#include "Spell.h"
 #include "ItemScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -80,9 +81,31 @@ public:
     }
 };
 
+
+class instant_cast_scroll_cast : public AllSpellScript
+{
+public:
+    instant_cast_scroll_cast() : AllSpellScript("instant_cast_scroll_cast") { }
+
+    void OnSpellCast(Spell* spell, Unit* caster, SpellInfo const* spellInfo, bool /*skipCheck*/) override
+    {
+        if (!spell || !caster || !spellInfo || spellInfo->Id != 483)
+            return;
+        Item* item = spell->m_CastItem;
+        if (!item || item->GetEntry() != 900030)
+            return;
+        Player* player = caster->ToPlayer();
+        if (!player || player->HasSpell(900031))
+            return;
+        player->learnSpell(900031, false);
+        ChatHandler(player->GetSession()).SendSysMessage("You have learned Aura of Instant Cast.");
+    }
+};
+
 void AddJarvisInstantCastScripts()
 {
     new instant_cast_effect();
+    new instant_cast_scroll_cast();
     RegisterSpellScript(spell_aura_instant_cast);
     RegisterSpellScript(spell_instant_cast_toggle);
 }
