@@ -15,6 +15,5 @@ SET `EquippedItemClass` = -1,
     `Reagent_5` = 0, `Reagent_6` = 0, `Reagent_7` = 0, `Reagent_8` = 0,
     `ReagentCount_1` = 0, `ReagentCount_2` = 0, `ReagentCount_3` = 0, `ReagentCount_4` = 0,
     `ReagentCount_5` = 0, `ReagentCount_6` = 0, `ReagentCount_7` = 0, `ReagentCount_8` = 0,
-    `Totem_1` = 0, `Totem_2` = 0,
-    `TotemCategory_1` = 0, `TotemCategory_2` = 0
+    `Totem_1` = 0, `Totem_2` = 0
 WHERE `ID` = 900031;
