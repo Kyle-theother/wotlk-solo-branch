@@ -10,7 +10,6 @@
 
 enum InstantCast
 {
-    ITEM_SCROLL = 900030,
     SPELL_AURA = 900031
 };
 
@@ -18,30 +17,6 @@ static bool HasInstantCast(Unit* unit)
 {
     return unit && unit->HasAura(SPELL_AURA);
 }
-
-class item_instant_cast_scroll : public ItemScript
-{
-public:
-    item_instant_cast_scroll() : ItemScript("item_instant_cast_scroll") { }
-
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
-    {
-        if (!sSpellMgr->GetSpellInfo(SPELL_AURA))
-        {
-            ChatHandler(player->GetSession()).SendSysMessage("Aura of Instant Cast is not loaded on the server yet.");
-            return false;
-        }
-        if (player->HasSpell(SPELL_AURA))
-        {
-            ChatHandler(player->GetSession()).SendSysMessage("You already know Aura of Instant Cast.");
-            return false;
-        }
-        player->learnSpell(SPELL_AURA, false);
-        player->DestroyItemCount(item->GetEntry(), 1, true);
-        ChatHandler(player->GetSession()).SendSysMessage("You have learned Aura of Instant Cast. Cast the spell to turn it on, and cancel the aura to turn it off.");
-        return false;
-    }
-};
 
 class spell_instant_cast_toggle : public SpellScript
 {
@@ -107,7 +82,6 @@ public:
 
 void AddJarvisInstantCastScripts()
 {
-    new item_instant_cast_scroll();
     new instant_cast_effect();
     RegisterSpellScript(spell_aura_instant_cast);
     RegisterSpellScript(spell_instant_cast_toggle);
