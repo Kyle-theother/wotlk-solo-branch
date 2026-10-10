@@ -7,6 +7,7 @@
 #include "QuestDef.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
+#include "WorldSession.h"
 
 #include <algorithm>
 #include <vector>
@@ -19,7 +20,8 @@ constexpr uint32 PageSender = 2;
 constexpr uint32 ControlSender = 3;
 constexpr uint32 AcceptAllAction = 1;
 constexpr uint32 GoodbyeAction = 2;
-// Leave room for previous/next, accept-all and goodbye below the core's 32-item limit.
+constexpr uint32 BankAction = 3;
+// Leave room for previous/next, accept-all, bank and goodbye below the core's 32-item limit.
 constexpr uint32 PageSize = 24;
 
 bool IsGuideAvailable(Player* player, Creature* creature)
@@ -73,36 +75,36 @@ bool AcceptQuest(Player* player, Creature* creature, uint32 questId)
 void ShowMenu(Player* player, Creature* creature, uint32 page = 0)
 {
     ClearGossipMenuFor(player);
-    if (!IsGuideAvailable(player, creature)
-        || sDungeonQuestMgr->GetDungeonQuests(player->GetMapId()).empty())
+    if (!IsGuideAvailable(player, creature))
     {
-        ChatHandler(player->GetSession()).SendSysMessage("No dungeon quests are known for this location.");
         CloseGossipMenuFor(player);
         return;
     }
 
     std::vector<uint32> quests = GetEligibleQuests(player);
-    if (quests.empty())
+    if (!quests.empty())
     {
-        ChatHandler(player->GetSession()).SendSysMessage("You have no available quests for this dungeon.");
-        CloseGossipMenuFor(player);
-        return;
+        uint32 lastPage = static_cast<uint32>((quests.size() - 1) / PageSize);
+        page = std::min(page, lastPage);
+        std::size_t begin = static_cast<std::size_t>(page) * PageSize;
+        std::size_t end = std::min(begin + PageSize, quests.size());
+        for (std::size_t index = begin; index < end; ++index)
+            AddGossipItemFor(player, GOSSIP_ICON_DOT, sDungeonQuestMgr->GetQuestTitle(quests[index]),
+                QuestSender, quests[index]);
+
+        if (page > 0)
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Previous page", PageSender, page - 1);
+        if (page < lastPage)
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Next page", PageSender, page + 1);
+        if (EnableAcceptAll)
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Accept All Available Quests", ControlSender, AcceptAllAction);
+    }
+    else
+    {
+        ChatHandler(player->GetSession()).SendSysMessage("You have no available quests for this instance.");
     }
 
-    uint32 lastPage = static_cast<uint32>((quests.size() - 1) / PageSize);
-    page = std::min(page, lastPage);
-    std::size_t begin = static_cast<std::size_t>(page) * PageSize;
-    std::size_t end = std::min(begin + PageSize, quests.size());
-    for (std::size_t index = begin; index < end; ++index)
-        AddGossipItemFor(player, GOSSIP_ICON_DOT, sDungeonQuestMgr->GetQuestTitle(quests[index]),
-            QuestSender, quests[index]);
-
-    if (page > 0)
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Previous page", PageSender, page - 1);
-    if (page < lastPage)
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Next page", PageSender, page + 1);
-    if (EnableAcceptAll)
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Accept All Available Quests", ControlSender, AcceptAllAction);
+    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, "Open Bank", ControlSender, BankAction);
     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Goodbye", ControlSender, GoodbyeAction);
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
@@ -133,6 +135,13 @@ public:
             return true;
         }
 
+        if (sender == ControlSender && action == BankAction)
+        {
+            player->GetSession()->SendShowBank(creature->GetGUID());
+            CloseGossipMenuFor(player);
+            return true;
+        }
+
         if (sender == QuestSender)
         {
             if (!AcceptQuest(player, creature, action))
@@ -148,9 +157,9 @@ public:
                     ++accepted;
 
             if (accepted)
-                ChatHandler(player->GetSession()).PSendSysMessage("{} dungeon quests accepted.", accepted);
+                ChatHandler(player->GetSession()).PSendSysMessage("{} instance quests accepted.", accepted);
             else
-                ChatHandler(player->GetSession()).SendSysMessage("No dungeon quests could be accepted.");
+                ChatHandler(player->GetSession()).SendSysMessage("No instance quests could be accepted.");
         }
 
         ShowMenu(player, creature);
