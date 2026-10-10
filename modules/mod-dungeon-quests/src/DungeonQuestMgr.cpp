@@ -121,7 +121,7 @@ void DungeonQuestMgr::Reload()
 void DungeonQuestMgr::DiscoverDungeons()
 {
     // instance_template contains every instance map the world DB knows about.
-    // The DBC check below then narrows it to non-raid dungeons, keeping raids,
+    // The DBC check below then keeps 5-player dungeons and raids, leaving
     // battlegrounds, arenas and outdoor continent maps out of scope.
     QueryResult result = WorldDatabase.Query("SELECT DISTINCT `map` FROM `instance_template`");
     if (!result)
@@ -136,14 +136,14 @@ void DungeonQuestMgr::DiscoverDungeons()
         uint32 mapId = fields[0].Get<uint32>();
 
         auto mapEntry = sMapStore.LookupEntry(mapId);
-        if (!mapEntry || !mapEntry->IsNonRaidDungeon())
+        if (!mapEntry || !(mapEntry->IsNonRaidDungeon() || mapEntry->IsRaid()))
             continue;
 
         _dungeonMaps.insert(mapId);
     } while (result->NextRow());
 
     _stats.DungeonCount = static_cast<uint32>(_dungeonMaps.size());
-    LOG_INFO("module", "[DungeonQuests] Identified {} dungeon map(s) from instance_template and Map.dbc.",
+    LOG_INFO("module", "[DungeonQuests] Identified {} dungeon and raid map(s) from instance_template and Map.dbc.",
         _stats.DungeonCount);
 }
 
