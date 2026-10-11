@@ -17,6 +17,7 @@ enum JarvisAction
     ACT_SALE = 1, ACT_PROF = 2, ACT_REP = 3, ACT_RESET = 4, ACT_HEIRLOOM = 5,
     ACT_TRAVEL = 6, ACT_CITIES = 7, ACT_RAIDS = 8, ACT_ZONES = 9,
     ACT_RAID_VANILLA = 30, ACT_RAID_TBC = 31, ACT_RAID_WOTLK = 32,
+    ACT_REP_CLASSIC = 33, ACT_REP_TBC = 34, ACT_REP_WOTLK = 35,
     ACT_ZONE_EK = 40, ACT_ZONE_KAL = 41, ACT_ZONE_OUT = 42, ACT_ZONE_NR = 43,
     ACT_RACIAL = 20, ACT_TALENT = 21, ACT_SPELLS = 22, ACT_GEAR = 23, ACT_SPELL_CLASS = 24, ACT_INSTANT = 25, ACT_BACK = 99
 };
@@ -113,7 +114,7 @@ static void GiveLevelGreens(Player* player, uint8 level)
 }
 
 struct JarvisDest { char const* name; uint32 map; float x, y, z, o; };
-struct JarvisFaction { char const* name; uint32 id; uint8 team; uint32 gold; };
+struct JarvisFaction { char const* name; uint32 id; uint8 team; uint32 gold; uint8 expansion; };
 struct JarvisProf { char const* name; uint32 skill; uint16 scale; uint32 tool; uint32 spells[6]; };
 
 static JarvisDest const cities[] =
@@ -231,10 +232,30 @@ static JarvisDest const nrZones[] =
 };
 static JarvisFaction const factions[] =
 {
-    { "Stormwind", 72, 1, 200 }, { "Ironforge", 47, 1, 200 }, { "Darnassus", 69, 1, 200 }, { "Exodar", 930, 1, 400 }, { "Gnomeregan", 54, 1, 300 },
-    { "Orgrimmar", 76, 2, 200 }, { "Thunder Bluff", 81, 2, 200 }, { "Undercity", 68, 2, 200 }, { "Silvermoon", 911, 2, 400 }, { "Darkspear Trolls", 530, 2, 300 },
-    { "Cenarion Circle", 609, 0, 800 }, { "Argent Crusade", 1106, 0, 1500 }, { "Kirin Tor", 1090, 0, 1500 },
-    { "Knights of the Ebon Blade", 1098, 0, 2000 }, { "Wyrmrest Accord", 1091, 0, 1500 }
+    { "Stormwind", 72, 1, 200, 1 }, { "Ironforge", 47, 1, 200, 1 }, { "Darnassus", 69, 1, 200, 1 }, { "Gnomeregan", 54, 1, 300, 1 },
+    { "Orgrimmar", 76, 2, 200, 1 }, { "Thunder Bluff", 81, 2, 200, 1 }, { "Undercity", 68, 2, 200, 1 }, { "Darkspear Trolls", 530, 2, 300, 1 },
+    { "Booty Bay", 21, 0, 400, 1 }, { "Ratchet", 470, 0, 400, 1 }, { "Gadgetzan", 369, 0, 400, 1 }, { "Everlook", 577, 0, 400, 1 },
+    { "Cenarion Circle", 609, 0, 800, 1 }, { "Argent Dawn", 529, 0, 800, 1 }, { "Timbermaw Hold", 576, 0, 800, 1 },
+    { "Thorium Brotherhood", 59, 0, 1000, 1 }, { "Zandalar Tribe", 270, 0, 1000, 1 }, { "Brood of Nozdormu", 910, 0, 1200, 1 },
+    { "Hydraxian Waterlords", 749, 0, 800, 1 }, { "Darkmoon Faire", 909, 0, 500, 1 },
+    { "Stormpike Guard", 730, 1, 600, 1 }, { "Silverwing Sentinels", 890, 1, 600, 1 }, { "League of Arathor", 509, 1, 600, 1 },
+    { "Frostwolf Clan", 729, 2, 600, 1 }, { "Warsong Outriders", 889, 2, 600, 1 }, { "The Defilers", 510, 2, 600, 1 },
+
+    { "Exodar", 930, 1, 400, 2 }, { "Honor Hold", 946, 1, 800, 2 }, { "Kurenai", 978, 1, 1000, 2 },
+    { "Silvermoon", 911, 2, 400, 2 }, { "Thrallmar", 947, 2, 800, 2 }, { "The Mag'har", 941, 2, 1000, 2 },
+    { "Cenarion Expedition", 942, 0, 800, 2 }, { "The Aldor", 932, 0, 1000, 2 }, { "The Scryers", 934, 0, 1000, 2 },
+    { "The Sha'tar", 935, 0, 1200, 2 }, { "Lower City", 1011, 0, 800, 2 }, { "Keepers of Time", 989, 0, 1000, 2 },
+    { "The Consortium", 933, 0, 800, 2 }, { "Sporeggar", 970, 0, 800, 2 }, { "Netherwing", 1015, 0, 1500, 2 },
+    { "Ogri'la", 1038, 0, 1200, 2 }, { "Shattered Sun Offensive", 1077, 0, 1500, 2 }, { "The Violet Eye", 967, 0, 1000, 2 },
+    { "The Scale of the Sands", 990, 0, 1200, 2 },
+
+    { "Alliance Vanguard", 1037, 1, 1000, 3 }, { "Valiance Expedition", 1050, 1, 1000, 3 }, { "The Frostborn", 1126, 1, 1000, 3 },
+    { "The Silver Covenant", 1094, 1, 1500, 3 }, { "Explorers' League", 1068, 1, 1000, 3 },
+    { "Horde Expedition", 1052, 2, 1000, 3 }, { "Warsong Offensive", 1085, 2, 1000, 3 }, { "The Hand of Vengeance", 1067, 2, 1000, 3 },
+    { "The Taunka", 1064, 2, 1000, 3 }, { "The Sunreavers", 1124, 2, 1500, 3 },
+    { "Argent Crusade", 1106, 0, 1500, 3 }, { "Kirin Tor", 1090, 0, 1500, 3 }, { "Knights of the Ebon Blade", 1098, 0, 2000, 3 },
+    { "Wyrmrest Accord", 1091, 0, 1500, 3 }, { "The Kalu'ak", 1073, 0, 1000, 3 }, { "The Sons of Hodir", 1119, 0, 2000, 3 },
+    { "The Oracles", 1105, 0, 1500, 3 }, { "Frenzyheart Tribe", 1104, 0, 1500, 3 }, { "The Ashen Verdict", 1156, 0, 2000, 3 }
 };
 static JarvisProf const profs[] =
 {
@@ -416,12 +437,13 @@ public:
             ChatHandler(player->GetSession()).SendSysMessage(action == 50 ? "The opposite faction is now at war." : "The opposite faction is no longer at war.");
             return true;
         }
-        if (sender == ACT_REP)
+        if (sender == ACT_REP_CLASSIC || sender == ACT_REP_TBC || sender == ACT_REP_WOTLK)
         {
+            uint8 expansion = sender == ACT_REP_CLASSIC ? 1 : (sender == ACT_REP_TBC ? 2 : 3);
             uint32 seen = 0; uint8 team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
             for (JarvisFaction const& faction : factions)
             {
-                if (faction.team != 0 && faction.team != team) continue;
+                if (faction.expansion != expansion || (faction.team != 0 && faction.team != team)) continue;
                 if (seen == action) { CloseGossipMenuFor(player); if (TakeGold(player, faction.gold)) if (FactionEntry const* entry = sFactionStore.LookupEntry(faction.id)) GiveReputation(player, entry); return true; }
                 ++seen;
             }
@@ -514,17 +536,25 @@ public:
                 for (uint32 i = 0; i < sizeof(profs) / sizeof(profs[0]); ++i) if (player->GetSkillValue(profs[i].skill) < 450) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, profs[i].name, GOSSIP_SENDER_MAIN, 200 + i);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
             case ACT_REP:
-            {
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Set the opposite faction at war", ACT_REP, 50);
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Clear opposite faction at war", ACT_REP, 51);
-                uint8 team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2; uint32 shown = 0;
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Classic", GOSSIP_SENDER_MAIN, ACT_REP_CLASSIC);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "The Burning Crusade", GOSSIP_SENDER_MAIN, ACT_REP_TBC);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Wrath of the Lich King", GOSSIP_SENDER_MAIN, ACT_REP_WOTLK);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
+            case ACT_REP_CLASSIC:
+            case ACT_REP_TBC:
+            case ACT_REP_WOTLK:
+            {
+                uint8 expansion = action == ACT_REP_CLASSIC ? 1 : (action == ACT_REP_TBC ? 2 : 3);
+                uint32 shown = 0; uint8 team = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
                 for (JarvisFaction const& faction : factions)
                 {
-                    if (faction.team != 0 && faction.team != team) continue;
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, std::string(faction.name) + " - " + std::to_string(faction.gold) + "g", ACT_REP, shown, "Buy exalted reputation?", faction.gold * GOLD, false);
+                    if (faction.expansion != expansion || (faction.team != 0 && faction.team != team)) continue;
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, std::string(faction.name) + " - " + std::to_string(faction.gold) + "g", action, shown, "Buy exalted reputation?", faction.gold * GOLD, false);
                     ++shown;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_BACK); break;
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go back", GOSSIP_SENDER_MAIN, ACT_REP); break;
             }
             case ACT_RACIAL:
                 for (uint32 i = 0; i < sizeof(racials) / sizeof(racials[0]); ++i) if (!KnowsRacial(player, i)) AddGossipItemFor(player, GOSSIP_ICON_TRAINER, std::string(racials[i].name) + " - 200g", ACT_RACIAL, i, "Learn these racials?", 200 * GOLD, false);
