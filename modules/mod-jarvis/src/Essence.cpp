@@ -8,9 +8,12 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "UnitScript.h"
 #include "TemporarySummon.h"
 #include "Timer.h"
 #include <unordered_map>
+#include <list>
 #include <unordered_set>
 
 constexpr uint32 ESSENCE_ITEM = 900014;
@@ -27,7 +30,8 @@ static uint32 const RAID_BUFFS[] =
     48470, // Gift of the Wild
     48162, // Prayer of Fortitude
     48074, // Prayer of Spirit
-    57623  // Horn of Winter
+    57623, // Horn of Winter
+    48170  // Prayer of Shadow Protection
 };
 static uint32 const RAID_DEBUFFS[] =
 {
@@ -84,17 +88,60 @@ static bool IsTriggerSpell(SpellInfo const* spellInfo)
     return first && TRIGGER_SPELLS.contains(first->Id);
 }
 
+static uint32 const TOTEM_BUFFS[] =
+{
+    58643, // Strength of Earth Totem
+    58753, // Stoneskin Totem
+    58774, // Mana Spring Totem
+    3738,  // Wrath of Air Totem
+    58656, // Flametongue Totem
+    57663, // Totem of Wrath
+    8512   // Windfury Totem
+};
+
+static uint32 const COMBAT_TOTEMS[] =
+{
+    58745, // Frost Resistance Totem
+    58741, // Fire Resistance Totem
+    58774, // Mana Spring Totem
+    58656, // Flametongue Totem
+    58749, // Nature Resistance Totem
+    8512,  // Windfury Totem
+    57663  // Totem of Wrath
+};
+
+static void ApplyHourAura(Unit* target, uint32 spell)
+{
+    Aura* aura = target->AddAura(spell, target);
+    if (!aura)
+        return;
+    aura->SetMaxDuration(60 * MINUTE * IN_MILLISECONDS);
+    aura->SetDuration(60 * MINUTE * IN_MILLISECONDS);
+}
+
+
+static void ApplyTotemBuffs(Player* player)
+{
+    for (uint32 spell : TOTEM_BUFFS)
+        ApplyHourAura(player, spell);
+    for (uint32 spell : COMBAT_TOTEMS)
+        ApplyHourAura(player, spell);
+}
+
+static void ApplyControlImmunity(Player* player)
+{
+    player->RemoveAurasWithMechanic(1ULL << MECHANIC_POLYMORPH);
+    player->ApplySpellImmune(ESSENCE_ITEM, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+    for (uint32 spell : { 118u, 12826u, 28271u, 28272u, 61305u, 61721u, 61780u, 51514u })
+        player->ApplySpellImmune(ESSENCE_ITEM, IMMUNITY_ID, spell, true);
+}
+
 static void ApplyRaidBuffs(Player* player)
 {
     for (uint32 spell : RAID_BUFFS)
-    {
-        Aura* aura = player->AddAura(spell, player);
-        if (aura && (spell == 47440 || spell == 57623))
-        {
-            aura->SetMaxDuration(60 * MINUTE * IN_MILLISECONDS);
-            aura->SetDuration(60 * MINUTE * IN_MILLISECONDS);
-        }
-    }
+        ApplyHourAura(player, spell);
+    ApplyTotemBuffs(player);
+    ApplyControlImmunity(player);
 }
 
 static void ApplyRaidDebuffs(Player* player, Unit* victim)
@@ -117,7 +164,7 @@ static void SummonJarvisTotem(Player* player, Unit* target)
         pos = target->GetPosition();
     pos.m_positionX += 2.0f;
 
-    if (Creature* totem = player->SummonCreature(JARVIS_TOTEM, pos, TEMPSUMMON_TIMED_DESPAWN, 30 * IN_MILLISECONDS))
+    if (Creature* totem = player->SummonCreature(JARVIS_TOTEM, pos, TEMPSUMMON_TIMED_DESPAWN, 60 * MINUTE * IN_MILLISECONDS))
     {
         totem->SetFaction(player->GetFaction());
         nextJarvisTotem[player->GetGUID()] = now;
@@ -132,7 +179,7 @@ public:
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/) override
     {
         ApplyRaidBuffs(player);
-        ChatHandler(player->GetSession()).SendSysMessage("Essence of the Immortals: raid buffs applied.");
+        ChatHandler(player->GetSession()).SendSysMessage("Essence of the Immortals: raid and totem buffs applied.");
         return false;
     }
 };
@@ -150,7 +197,24 @@ public:
         {
             if (timer <= diff)
             {
-                me->CastSpell(me, 48470, true);
+                static uint32 const spells[] = {
+                    58643, 58753, 58774, 3738, 58656, 57663, 8512,
+                    58745, 58741, 58749, 48470
+                };
+                for (auto const& ref : me->GetMap()->GetPlayers())
+                {
+                    Player* player = ref.GetSource();
+                    if (!player || me->GetDistance(player) > 40.0f)
+                        continue;
+                    player->RemoveAurasDueToSpell(8143);
+                    player->RemoveAurasDueToSpell(58764);
+                    player->RemoveAurasDueToSpell(8170);
+                    for (uint32 spell : spells)
+                        ApplyHourAura(player, spell);
+                    if (HasEssence(player))
+                        ApplyControlImmunity(player);
+                    me->CastSpell(player, 52042, true);
+                }
                 timer = 10000;
             }
             else
@@ -173,13 +237,15 @@ public:
 
     void OnPlayerMapChanged(Player* player) override
     {
-        if (HasEssence(player) && player->GetMap() && player->GetMap()->IsDungeon())
+        if (player->GetMap() && player->GetMap()->IsRaid())
+            ApplyHourAura(player, 25899);
+        if (HasEssence(player) && player->GetMap() && (player->GetMap()->IsDungeon() || player->GetMap()->IsRaid()))
             ApplyRaidBuffs(player);
     }
 
     void OnPlayerSpellCast(Player* player, Spell* spell, bool /*skipCheck*/) override
     {
-        if (!HasEssence(player) || !player->GetMap() || !player->GetMap()->IsDungeon())
+        if (!HasEssence(player) || !player->GetMap() || !(player->GetMap()->IsDungeon() || player->GetMap()->IsRaid()))
             return;
         if (!spell || !IsTriggerSpell(spell->GetSpellInfo()))
             return;
@@ -188,7 +254,40 @@ public:
         if (!target)
             target = player->GetSelectedUnit();
         ApplyRaidDebuffs(player, target);
-        SummonJarvisTotem(player, target);
+        ApplyTotemBuffs(player);
+    }
+};
+
+
+class essence_leech : public UnitScript
+{
+public:
+    essence_leech() : UnitScript("essence_leech") { }
+
+    void OnDamage(Unit* attacker, Unit* victim, uint32& damage) override
+    {
+        if (!attacker || !victim || attacker == victim || !damage)
+            return;
+
+        if (Player* defender = victim->GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (defender->GetMap() && defender->GetMap()->IsRaid())
+                damage = damage * 70 / 100;
+
+        Player* player = attacker->GetCharmerOrOwnerPlayerOrPlayerItself();
+        if (!player)
+            return;
+        if (player->GetMap() && player->GetMap()->IsRaid())
+            damage = damage * 35 / 10;
+
+        if (!HasEssence(player) || player->IsFriendlyTo(victim))
+            return;
+
+        uint32 heal = damage / 2;
+        if (!heal)
+            return;
+
+        int32 bp = int32(heal);
+        player->CastCustomSpell(player, 15290, &bp, nullptr, nullptr, true);
     }
 };
 
@@ -197,4 +296,5 @@ void AddJarvisItemScripts()
     new item_essence_of_immortals();
     new npc_jarvis_totem();
     new essence_player();
+    new essence_leech();
 }
