@@ -1,8 +1,12 @@
 #include "Chat.h"
 #include "ChatCommand.h"
+#include "Creature.h"
+#include "Formulas.h"
+#include "Map.h"
 #include "Player.h"
 #include "PlayerScript.h"
 #include "ScriptMgr.h"
+#include "World.h"
 #include <cstdlib>
 
 using namespace Acore::ChatCommands;
@@ -30,6 +34,47 @@ public:
     void OnPlayerGiveXP(Player* player, uint32& amount, Unit* /*victim*/, uint8 /*xpSource*/) override
     {
         amount = amount * GetXpPercent(player) / 100;
+    }
+
+    void OnPlayerCreatureKill(Player* killer, Creature* killed) override
+    {
+        AwardRaidXp(killer, killed);
+    }
+
+    void OnPlayerCreatureKilledByPet(Player* petOwner, Creature* killed) override
+    {
+        AwardRaidXp(petOwner, killed);
+    }
+
+    static void AwardRaidXp(Player* player, Creature* killed)
+    {
+        if (!player || !killed || !player->GetMap() || !player->GetMap()->IsRaid())
+            return;
+        if (killed->IsTotem() || killed->IsPet() || killed->IsCritter())
+            return;
+
+        CreatureTemplate const* info = killed->GetCreatureTemplate();
+        bool blocked = killed->HasFlagsExtra(CREATURE_FLAG_EXTRA_NO_XP) || !info || info->ModExperience <= 0.0f;
+        if (!blocked)
+            return;
+
+        uint32 gain = Acore::XP::BaseGain(player->GetLevel(), killed->GetLevel(), GetContentLevelsForMapAndZone(killed->GetMapId(), killed->GetZoneId()));
+        if (!gain)
+            return;
+
+        float xpMod = sWorld->getRate(RATE_XP_KILL);
+        if (killed->isElite())
+            xpMod *= 2.0f;
+        gain = uint32(gain * xpMod);
+        if (!gain)
+            return;
+
+        bool hadRecipient = killed->hasLootRecipient();
+        if (!hadRecipient)
+            killed->SetLootRecipient(player);
+        player->GiveXP(gain, killed);
+        if (!hadRecipient)
+            killed->SetLootRecipient(nullptr);
     }
 };
 
